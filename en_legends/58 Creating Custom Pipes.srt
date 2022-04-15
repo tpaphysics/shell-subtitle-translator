@@ -1,0 +1,352 @@
+1
+00:00:00,800 --> 00:00:04,940
+Pipes have 2 typical use-cases.
+
+2
+00:00:04,940 --> 00:00:08,630
+1) "Transformation" where we transform *input*
+data to the desired *output*,
+
+3
+00:00:09,470 --> 00:00:14,720
+2) And "validation", where we *evaluate* input data
+and if -valid-, simply pass it through
+
+4
+00:00:14,720 --> 00:00:20,210
+unchanged. If the data is -not valid-,
+we want to throw an Exception.
+
+5
+00:00:20,210 --> 00:00:27,210
+In both cases. Pipes operate on the arguments
+being processed by a Controller's route handler.
+
+6
+00:00:27,210 --> 00:00:31,620
+NestJS triggers a Pipe just
+*before* a method is invoked.
+
+7
+00:00:31,620 --> 00:00:35,790
+Pipes also receive the arguments meant
+to be passed onto the method.
+
+8
+00:00:35,790 --> 00:00:40,980
+Any transformation or validation operation
+takes place at -this- time.
+
+9
+00:00:40,980 --> 00:00:46,360
+Afterwards the route handler is invoked
+with any potentially transformed arguments.
+
+10
+00:00:46,360 --> 00:00:49,610
+NestJS comes with several pipes
+available out of the box.
+
+11
+00:00:49,610 --> 00:00:51,980
+All from the @nestjs/common package.
+
+12
+00:00:51,980 --> 00:00:57,680
+For example ValidationPipe, which we've seen in
+previous lessons, and ParseArrayPipe, which we
+
+13
+00:00:57,680 --> 00:01:03,740
+haven't seen but it's an extremely helpful Pipe
+that helps us parse and validate Arrays.
+
+14
+00:01:03,740 --> 00:01:06,860
+To learn how we can build our own *custom* Pipes.
+
+15
+00:01:06,860 --> 00:01:13,550
+Let's create a Pipe that automatically parses any incoming
+String to an Integer, and let's call it `
+
+16
+00:01:13,940 --> 00:01:15,440
+ParseIntPipe`.
+
+17
+00:01:15,440 --> 00:01:20,930
+Nest already has a ParseIntPipe that we
+could use from the @nestjs/common library.
+
+18
+00:01:20,930 --> 00:01:26,600
+But let's create this basic Pipe for learning
+purposes, to help us fully understand the basic
+
+19
+00:01:26,600 --> 00:01:28,850
+mechanics of a Pipe.
+
+20
+00:01:28,850 --> 00:01:34,530
+Let's fire up the terminal and generate a Pipe
+class using the Nest CLI pipe schematic, placing it
+
+21
+00:01:34,540 --> 00:01:40,350
+in the common/pipe folder,
+and calling it "parse-int".
+
+22
+00:01:40,350 --> 00:01:44,370
+Note that we generated this pipe in the /common/
+directory again where we can keep things that
+
+23
+00:01:44,430 --> 00:01:47,310
+aren't tied to any specific domain.
+
+24
+00:01:47,310 --> 00:01:50,880
+Let's open up this newly generated ParseIntPipe
+file and see what we have inside.
+
+25
+00:01:51,780 --> 00:01:58,230
+As we can see the Nest CLI generated an
+example pipe for us without any logic inside.
+
+26
+00:01:58,230 --> 00:02:03,060
+Similar to providers a Pipe is
+a class with the @Injectable() decorator.
+
+27
+00:02:03,060 --> 00:02:09,360
+But all pipes should implement the
+`PipeTransform` interface exported from @nestjs/common.
+
+28
+00:02:09,360 --> 00:02:14,430
+This interface requires us to provide
+the transform() method within our class.
+
+29
+00:02:14,430 --> 00:02:17,850
+This transform() method has 2 parameters.
+
+30
+00:02:17,850 --> 00:02:23,430
+`value`: the input value of the currently processed
+argument before it is received by our route
+
+31
+00:02:23,430 --> 00:02:25,230
+handling method.
+
+32
+00:02:25,230 --> 00:02:30,390
+And `metadata`. The metadata of
+the currently processed argument.
+
+33
+00:02:30,390 --> 00:02:35,940
+Whatever value is returned from this transform
+function completely overrides the previous value of
+
+34
+00:02:35,940 --> 00:02:38,040
+the argument.
+
+35
+00:02:38,040 --> 00:02:40,110
+So when is this useful.
+
+36
+00:02:40,110 --> 00:02:45,120
+Consider that sometimes the data passed from the
+client needs to undergo some change, before this
+
+37
+00:02:45,120 --> 00:02:48,900
+data can be properly handled
+by the route handler method.
+
+38
+00:02:48,900 --> 00:02:53,580
+Another example use case for pipes
+would be to provide default values.
+
+39
+00:02:53,580 --> 00:02:56,580
+Imagine if we had some required
+data fields that were missing.
+
+40
+00:02:56,580 --> 00:03:00,750
+We could automatically set these
+defaults within a pipe.
+
+41
+00:03:00,750 --> 00:03:06,330
+Transformer pipes can perform these functions by
+interposing the transformation function we create -
+
+42
+00:03:06,750 --> 00:03:10,590
+between the client request -
+and the request handler.
+
+43
+00:03:11,310 --> 00:03:13,440
+This is merely another example.
+
+44
+00:03:13,440 --> 00:03:18,200
+But the point is to show that there are
+many powerful things you can do with pipes.
+
+45
+00:03:18,200 --> 00:03:22,350
+All right. So back to
+creating a custom ParseIntPipe.
+
+46
+00:03:22,350 --> 00:03:25,310
+Let's start by implementing the actual logic.
+
+47
+00:03:25,310 --> 00:03:32,040
+First. We can assume that the input value or `value`
+is a String so we can change the type from
+
+48
+00:03:32,100 --> 00:03:35,450
+`any` to `string`.
+
+49
+00:03:35,450 --> 00:03:41,360
+Next. Let's use the built-in `parseInt()` JavaScript function
+to try parsing the input string to an
+
+50
+00:03:41,360 --> 00:03:48,270
+integer.
+
+51
+00:03:48,270 --> 00:03:51,360
+Let's add some conditional logic here
+in case we see any errors.
+
+52
+00:03:51,870 --> 00:03:58,570
+If the return value is not a number we
+can make sure to throw a BadRequestException, otherwise we
+
+53
+00:03:58,570 --> 00:04:02,110
+can return the modified value,
+which is now an integer!
+
+54
+00:04:02,110 --> 00:04:03,550
+Perfect.
+
+55
+00:04:03,550 --> 00:04:08,400
+With this in place we can now
+bind our pipe to some @Param() decorators.
+
+56
+00:04:08,400 --> 00:04:16,090
+Let's open up the CoffeesController file
+and navigate to the findOne() method.
+
+57
+00:04:16,090 --> 00:04:17,620
+Before we do anything here.
+
+58
+00:04:17,620 --> 00:04:24,090
+Let's add a single console.log() to
+log the `id` arguments "value".
+
+59
+00:04:24,090 --> 00:04:31,490
+Now let's navigate to insomnia and execute
+a GET request to the /coffees/abc endpoint.
+
+60
+00:04:31,490 --> 00:04:38,560
+Note we're going to pass "ABC", a String,
+instead of a number like 1 or 10.
+
+61
+00:04:38,560 --> 00:04:43,090
+Let's switch to VSCode and fire up
+the terminal and see what was logged.
+
+62
+00:04:43,090 --> 00:04:47,940
+As we can see it outputs `NaN` or "not a number".
+
+63
+00:04:47,940 --> 00:04:53,730
+This means that although our "id" `abc` could not have
+been parsed to a number, the find one method
+
+64
+00:04:53,730 --> 00:04:56,910
+was called with an incorrect argument.
+
+65
+00:04:56,910 --> 00:04:59,340
+To prevent situations like this.
+
+66
+00:04:59,340 --> 00:05:03,270
+Let's use our newly created ParseIntPipe
+to validate the incoming parameter.
+
+67
+00:05:03,720 --> 00:05:09,210
+And in case it's not parseable to an
+integer our Pipe will automatically throw a validation
+
+68
+00:05:09,210 --> 00:05:10,430
+exception for us.
+
+69
+00:05:11,630 --> 00:05:16,430
+So let's pass in our ParseIntPipe as the
+second parameter to our @Param('id') here, save our
+
+70
+00:05:16,430 --> 00:05:18,350
+changes, and test the endpoint again
+
+71
+00:05:26,660 --> 00:05:32,720
+. Great as we can see this time we received
+a 400 error with the message stating that "validation
+
+72
+00:05:32,780 --> 00:05:34,590
+failed".
+
+73
+00:05:34,590 --> 00:05:39,840
+As we said Nest comes with this Pipe already,
+but hopefully this example showcases the power of
+
+74
+00:05:39,840 --> 00:05:45,150
+Pipes and how you could implement your own to
+do a multitude of useful processes for your
+
+75
+00:05:45,150 --> 00:05:45,720
+application.
+

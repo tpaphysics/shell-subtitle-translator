@@ -1,0 +1,601 @@
+1
+00:00:00,970 --> 00:00:04,810
+Na última aula, implementamos o
+primeiro golo da nossa nova Guarda.
+
+2
+00:00:04,810 --> 00:00:10,560
+Que era para verificar se um token de API
+está presente quando uma rota é acessada.
+
+3
+00:00:10,560 --> 00:00:14,730
+Nesta lição veremos como
+podemos concluir a próxima funcionalidade que precisávamos,
+
+4
+00:00:14,880 --> 00:00:19,620
+que era detectar se a rota
+sendo o acesso declarado "público" ou não.
+
+5
+00:00:19,620 --> 00:00:24,990
+Como podemos especificar declarativamente quais pontos finais em
+nosso aplicativo são públicos, ou quaisquer "dados" que
+
+6
+00:00:24,990 --> 00:00:27,600
+deseja armazenado ao lado de controladores ou rotas.
+
+7
+00:00:28,850 --> 00:00:33,520
+É exatamente aqui que o costume
+Os metadados entram em jogo.
+
+8
+00:00:33,520 --> 00:00:38,620
+O Nest oferece a capacidade de anexar
+metadados para rotear manipuladores através do `@SetMetadata`
+
+9
+00:00:38,650 --> 00:00:39,880
+decorador.
+
+10
+00:00:39,880 --> 00:00:43,780
+O decorador @SetMetadata recebe dois parâmetros.
+
+11
+00:00:43,780 --> 00:00:49,240
+Primeiro sendo a "chave" de metadados que será usada como
+a chave de pesquisa e o segundo parâmetro é o
+
+12
+00:00:49,240 --> 00:00:52,660
+"valor" de metadados que pode ser qualquer tipo.
+
+13
+00:00:52,660 --> 00:00:57,690
+É aqui que colocamos quaisquer valores que
+deseja armazenar para esta chave específica.
+
+14
+00:00:57,690 --> 00:01:01,160
+Então vamos usar isso,
+para saber como tudo funciona.
+
+15
+00:01:01,160 --> 00:01:02,810
+Vamos abrir nosso arquivo controlador de cafés.
+
+16
+00:01:03,140 --> 00:01:08,870
+Vá para o nosso método findAll() e
+adicione este decorador @SetMetadata no topo.
+
+17
+00:01:08,870 --> 00:01:14,290
+Certificando-se de que é importado
+do pacote @nestjs/common.
+
+18
+00:01:14,290 --> 00:01:15,070
+Dentro do decorador.
+
+19
+00:01:15,460 --> 00:01:19,650
+Vamos passar esses metadados
+parâmetros chave e valor.
+
+20
+00:01:19,650 --> 00:01:28,980
+Para nossa chave. Vamos inserir a String de "isPublic",
+para nosso valor vamos inserir um booleano de `true`.
+
+21
+00:01:29,990 --> 00:01:35,150
+Esta é a maneira mais básica de configurar metadados
+em uma rota, mas não é realmente o melhor
+
+22
+00:01:35,150 --> 00:01:41,450
+prática. Idealmente, devemos criar nosso próprio
+decorador para obter o mesmo resultado.
+
+23
+00:01:41,450 --> 00:01:46,880
+Esta é uma prática muito melhor porque vamos
+tiver menos código duplicado, podemos reutilizar o decorador
+
+24
+00:01:46,880 --> 00:01:52,670
+em vários lugares, e um personalizado
+decorador nos dá muito mais segurança de tipo.
+
+25
+00:01:52,670 --> 00:01:58,400
+Vamos melhorar nosso código existente e fazer
+nosso próprio decorador, e chamá-lo de `Público`.
+
+26
+00:01:58,400 --> 00:02:07,240
+Primeiro vamos criar uma nova pasta dentro
+o diretório /common/ e chame-o de /decorators/.
+
+27
+00:02:07,240 --> 00:02:11,600
+Aqui podemos armazenar qualquer outro
+futuros decoradores que possamos fazer.
+
+28
+00:02:11.600 --> 00:02:16.640
+Nesta pasta. Vamos criar
+um novo arquivo chamado `public.decorator.
+
+29
+00:02:16,660 --> 00:02:20,460
+ts`.
+
+30
+00:02:20,460 --> 00:02:24,790
+Neste arquivo. Vamos exportar 2 coisas.
+
+31
+00:02:24,790 --> 00:02:31,000
+1) sendo nossa "chave" de metadados, e a outra sendo
+nosso novo decorador, que vamos chamar
+
+32
+00:02:31,030 --> 00:02:33,190
+"Público".
+
+33
+00:02:33,190 --> 00:02:40,330
+Para nossa chave vamos `exportar const IS_PUBLIC_KEY` e
+defina-o igual à string de "isPublic".
+
+34
+00:02:40,750 --> 00:02:43,300
+Assim como chamamos anteriormente.
+
+35
+00:02:43,300 --> 00:02:49,060
+A vantagem de exportar esta variável aqui é que
+em qualquer lugar que possamos procurar esses metadados, podemos
+
+36
+00:02:49,060 --> 00:02:55,930
+agora importe esta variável, em vez de usar
+"cordas mágicas" e digitando acidentalmente o nome incorretamente.
+
+37
+00:02:55,930 --> 00:03:02,380
+Agora vamos exportar nosso decorador digitando `export const
+Public`, e definindo isso igual a uma seta
+
+38
+00:03:02,380 --> 00:03:09,510
+função (u003d>), que retorna `SetMetadata`.
+
+39
+00:03:09,510 --> 00:03:14,130
+Dentro de SetMetadata(/* aqui */), assim como antes
+precisa passar essa "chave" e "valor".
+
+40
+00:03:14,130 --> 00:03:22,390
+Então vamos usar nossa variável IS_PUBLIC_KEY e para o
+valor vamos passar o booleano de `true`, apenas
+
+41
+00:03:22,390 --> 00:03:24,610
+como fizemos anteriormente.
+
+42
+00:03:24,610 --> 00:03:29,060
+E é isso! Acabamos de fazer nosso primeiro decorador!
+
+43
+00:03:29,060 --> 00:03:35,030
+Próximo. Vamos trocar o código que adicionamos anteriormente
+em nosso CoffeesController para usar nosso novo decorador.
+
+44
+00:03:35,030 --> 00:03:39,590
+Vamos voltar para aquele findAll()
+assinatura do método e substitua o adicionado anteriormente
+
+45
+00:03:39,590 --> 00:03:44,360
+expressão @SetMetadata com este decorador `@Public()`, tornando
+certifique-se de importá-lo de nosso local
+
+46
+00:03:44,360 --> 00:03:48,670
+diretório.
+
+47
+00:03:48,670 --> 00:03:54,010
+Perfeito. Agora temos uma prova muito mais futura
+e decorador facilmente reutilizável que podemos usar
+
+48
+00:03:54,010 --> 00:03:57,190
+em todo o nosso aplicativo, se necessário!
+
+49
+00:03:57,190 --> 00:04:03,690
+Vamos amarrar tudo e consertar
+até esse ApiKeyGuard para usá-lo.
+
+50
+00:04:03,690 --> 00:04:08,970
+Atualmente nosso Guard retorna true ou false, dependendo
+sobre se a API_KEY foi fornecida com o
+
+51
+00:04:08,970 --> 00:04:13,740
+solicitação. Mas agora precisamos
+adicione nossa lógica `isPublic` aqui.
+
+52
+00:04:13,740 --> 00:04:19,440
+Precisamos que a Guarda retorne `true`, quando
+os metadados isPublic são encontrados, *antes* de continuar
+
+53
+00:04:19,740 --> 00:04:23,220
+e testando se uma API_KEY está presente.
+
+54
+00:04:23,220 --> 00:04:26,850
+Para acessar o
+metadados de rotas em nossa guarda.
+
+55
+00:04:26,850 --> 00:04:31,050
+Precisaremos usar um
+nova classe auxiliar chamada `Reflector`.
+
+56
+00:04:31,050 --> 00:04:36,600
+A classe Reflector nos permite
+recuperar metadados dentro de um contexto específico.
+
+57
+00:04:37,410 --> 00:04:44,670
+Esta classe é fornecida fora da caixa
+pelo framework Nest, do pacote @nestjs/core.
+
+58
+00:04:44,670 --> 00:04:54,190
+Vamos injetar a classe Reflector
+aqui, dentro do nosso construtor().
+
+59
+00:04:54,190 --> 00:05:00,070
+Agora podemos usar este provedor dentro do
+método canActivate(), para recuperar os metadados do nosso
+
+60
+00:05:00,070 --> 00:05:01,840
+manipulador.
+
+61
+00:05:01,840 --> 00:05:05,550
+Vamos adicionar uma nova variável chamada isPublic.
+
+62
+00:05:05,550 --> 00:05:13,170
+Com esta variável, vamos utilizar `this.reflector.get()` que
+procura metadados por sua "chave".
+
+63
+00:05:13,170 --> 00:05:17,640
+No nosso caso, a variável exportada `IS_PUBLIC_KEY`,
+acabamos de fazer um momento atrás.
+
+64
+00:05:19,630 --> 00:05:24,670
+Reflector requer um "objeto alvo
+context", para o segundo parâmetro.
+
+65
+00:05:24,670 --> 00:05:29,590
+No nosso caso, queremos segmentar
+o *manipulador de método* em nosso contexto fornecido.
+
+66
+00:05:29,590 --> 00:05:36,910
+Então vamos passar em `context.getHandler()`.
+
+67
+00:05:36,910 --> 00:05:37,720
+Somente para referência.
+
+68
+00:05:38,050 --> 00:05:43,810
+Se você precisasse recuperar metadados de
+um *nível de classe*, você chamaria `context.getClass()` aqui
+
+69
+00:05:43,810 --> 00:05:48,700
+em vez de. Para mais informações sobre
+Refletor e outras possibilidades aqui.
+
+70
+00:05:49,090 --> 00:05:53,300
+Leia mais sobre isso na documentação do NestJS.
+
+71
+00:05:53,300 --> 00:05:58,820
+OK. Excelente. Agora que temos o valor de
+nosso decorador dentro da nossa Guarda há um último
+
+72
+00:05:58,820 --> 00:06:00,910
+coisa que precisamos fazer.
+
+73
+00:06:00,910 --> 00:06:02,560
+Se uma rota for "pública".
+
+74
+00:06:02,560 --> 00:06:06,400
+Podemos simplesmente pular a validação da API_KEY.
+
+75
+00:06:06,400 --> 00:06:10,270
+Vamos adicionar uma instrução if simples
+e se isPublic for `true`.
+
+76
+00:06:11,110 --> 00:06:16,860
+Vamos apenas retornar true.
+
+77
+00:06:16,890 --> 00:06:21,570
+E, por último, mencionamos anteriormente que
+não devemos usar `process.env` diretamente.
+
+78
+00:06:21,570 --> 00:06:25,950
+Então vamos consertar isso e
+em vez disso, use o ConfigService.
+
+79
+00:06:25,950 --> 00:06:34,420
+Vamos passar para o construtor
+bem rápido e injetar ConfigService.
+
+80
+00:06:34,420 --> 00:06:41,640
+Com este serviço injetado, agora podemos
+substitua a chamada process.env.API_KEY usada anteriormente por:
+
+81
+00:06:41,950 --> 00:06:43,930
+`this.configService.
+
+82
+00:06:43,960 --> 00:06:48,460
+get()` passando a string de "API_KEY".
+
+83
+00:06:48,460 --> 00:06:53,050
+Vamos salvar todas as nossas alterações e verificar o
+terminal para certificar-se de que tudo está compilando corretamente.
+
+84
+00:06:54,310 --> 00:06:59,860
+Ok, então nossa Guarda está pronta, mas parece
+como o aplicativo *não podia* inicializar corretamente, e é
+
+85
+00:06:59,860 --> 00:07:02,260
+jogando alguns erros de compilação!
+
+86
+00:07:02,260 --> 00:07:04,450
+Bem, o que aconteceu?
+
+87
+00:07:04,450 --> 00:07:10,060
+Bem, esses erros apareceram porque estamos usando dependência
+injeção *dentro da nossa Guarda*, que foi
+
+88
+00:07:10,060 --> 00:07:13,960
+instanciado no arquivo main.ts.
+
+89
+00:07:13,960 --> 00:07:16,430
+Então, como podemos consertar isso?
+
+90
+00:07:16,430 --> 00:07:18,200
+Como mostramos nas aulas anteriores.
+
+91
+00:07:18,800 --> 00:07:26,150
+Guardas globais que *dependem* de outras classes
+**deve** ser registrado em um contexto @Module.
+
+92
+00:07:26,150 --> 00:07:29,300
+Vamos consertar isso bem rápido, e
+adicione este protetor a um módulo.
+
+93
+00:07:29,300 --> 00:07:34,970
+E, na verdade, vamos aumentar um pouco e criar
+um novo módulo para nossa pasta "comum", e podemos
+
+94
+00:07:34,970 --> 00:07:37,390
+instanciar nossa Guarda lá.
+
+95
+00:07:37,390 --> 00:07:44,110
+Vamos abrir outra janela de terminal e vamos gerar
+um módulo e chame-o de comum com: `nest g
+
+96
+00:07:44,260 --> 00:07:48,090
+mais comum».
+
+97
+00:07:48,090 --> 00:07:52,560
+Isso irá gerar uma classe de módulo onde podemos
+registrar quaisquer potenciadores globais que possamos fazer no
+
+98
+00:07:52,560 --> 00:07:56,130
+futuro, incluindo nosso ApiKeyGuard.
+
+99
+00:07:56,130 --> 00:08:00,690
+Excelente. Então vamos abrir este novo módulo e
+utilizar a configuração de provedor personalizada que aprendemos em um
+
+100
+00:08:00,690 --> 00:08:02,460
+lição anterior.
+
+101
+00:08:02,460 --> 00:08:09,030
+É aqui que passamos um objeto para o nosso
+array do provedor fornecendo uma classe ou chave específica e
+
+102
+00:08:09,030 --> 00:08:11,670
+então o valor a ser usado para isso.
+
+103
+00:08:11,670 --> 00:08:12,870
+Dentro do nosso decorador @Module().
+
+104
+00:08:13,320 --> 00:08:20,670
+Vamos adicionar um provedor:[] Array e passar
+um objeto com `provide: APP_GUARD \}` e `useClass:`
+
+105
+00:08:21,240 --> 00:08:24,790
+com nosso `ApiKeyGuard`.
+
+106
+00:08:24,790 --> 00:08:30,050
+Esta configuração é muito semelhante ao uso de `app.useGlobalGuards()`
+que tínhamos em nosso arquivo main.ts.
+
+107
+00:08:30,050 --> 00:08:34,960
+Mas como dissemos, essa opção só está disponível
+se nossos guardas *não* usarem injeção de dependência.
+
+108
+00:08:35,440 --> 00:08:39,850
+Observe que existe uma maneira de contornar isso, mas
+não é uma prática recomendada, pois você teria que passar manualmente
+
+109
+00:08:39,850 --> 00:08:42,240
+nas dependências.
+
+110
+00:08:42,240 --> 00:08:47,610
+Uma última coisa aqui. Vamos nos certificar de importar
+o `ConfigModule` nas importações:[] Array aqui para que possamos
+
+111
+00:08:47,610 --> 00:08:50,880
+pode usar o ConfigService em nosso Guard.
+
+112
+00:08:50,880 --> 00:08:56,010
+Agora vamos abrir nosso arquivo main.ts e remover
+aquela linha `useGlobalGuards` já que não precisamos dela
+
+113
+00:08:56,010 --> 00:08:59,250
+mais e salve todas as nossas alterações.
+
+114
+00:08:59,250 --> 00:09:04,240
+Vamos mudar para nossa janela de terminal novamente para
+certifique-se de que tudo pode ser inicializado corretamente agora.
+
+115
+00:09:04,240 --> 00:09:06,720
+Excelente. Tudo está compilando novamente.
+
+116
+00:09:06,720 --> 00:09:10,800
+Agora vamos abrir a insônia e colocar
+nossa nova Guarda à prova.
+
+117
+00:09:10,800 --> 00:09:16,200
+Vamos começar removendo o cabeçalho "autorização" e
+faça uma solicitação GET /coffees, que configuramos
+
+118
+00:09:16,230 --> 00:09:18,720
+para usar nosso decorador @Public().
+
+119
+00:09:18,720 --> 00:09:21,810
+Se tudo funcionar como esperado
+*não* deve retornar um erro 403.
+
+120
+00:09:22,230 --> 00:09:24,600
+Já que nosso guarda *deveria permitir o acesso* a ele.
+
+121
+00:09:24,600 --> 00:09:27,440
+E funcionou, ótimo!
+
+122
+00:09:27,440 --> 00:09:32,210
+Próximo. Vamos tentar uma rota que *não* tenha o
+@Public() decorador, como uma solicitação GET até o final
+
+123
+00:09:32,210 --> 00:09:35,940
+ponto /cafés/1.
+
+124
+00:09:35,940 --> 00:09:41,250
+Nosso guarda deve nos negar acesso a esta rota, já que
+não é público nem estamos passando em um
+
+125
+00:09:41,250 --> 00:09:43,140
+cabeçalho de autorização.
+
+126
+00:09:43,140 --> 00:09:48,620
+E aí está, 403 Proibido
+- nosso guarda funciona perfeitamente!
+
+127
+00:09:48,620 --> 00:09:54,230
+Então, para encerrar, cobrimos muito terreno em
+esta lição explorando muitos conceitos que aprendemos em
+
+128
+00:09:54,230 --> 00:09:56,210
+lições anteriores.
+
+129
+00:09:56,210 --> 00:10:01,490
+Agora temos o poder adicional de criar
+nossos próprios decoradores e utiliza metadados do manipulador, úteis
+
+130
+00:10:01,490 --> 00:10:04,000
+para qualquer coisa que nosso aplicativo possa
+precisar no futuro.
+

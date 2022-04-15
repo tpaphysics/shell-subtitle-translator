@@ -1,0 +1,390 @@
+1
+00:00:00,820 --> 00:00:05,950
+Middleware is a function that is called *before* the
+route handler and any other building blocks are
+
+2
+00:00:05,950 --> 00:00:11,660
+processed. This includes Interceptors,
+Guards and Pipes.
+
+3
+00:00:11,660 --> 00:00:17,210
+Middleware functions have access to the Request &amp;
+Response objects, and are *not* specifically tied
+
+4
+00:00:17,210 --> 00:00:22,520
+to *any method*, but rather
+to a specified "route path".
+
+5
+00:00:22,520 --> 00:00:24,710
+Middleware functions can perform
+the following tasks:.
+
+6
+00:00:25,550 --> 00:00:27,710
+1) Executing code.
+
+7
+00:00:27,710 --> 00:00:31,520
+2) Making changes to the
+request and response objects.
+
+8
+00:00:31,520 --> 00:00:33,560
+3) Ending the request/response cycle.
+
+9
+00:00:34,130 --> 00:00:38,480
+4) Or even calling the `next()`
+middleware function in the call stack.
+
+10
+00:00:38,480 --> 00:00:44,210
+When working with middleware, if the current
+middleware function does not end the request/response
+
+11
+00:00:44,270 --> 00:00:45,290
+cycle.
+
+12
+00:00:45,290 --> 00:00:51,740
+It *must* call the `next()` method, which
+passes control to the next middleware function.
+
+13
+00:00:51,740 --> 00:00:56,100
+Otherwise the request will be
+left -hanging-, and never complete.
+
+14
+00:00:56,100 --> 00:00:59,970
+So how can we get
+started creating our own middleware.
+
+15
+00:00:59,970 --> 00:01:05,000
+Custom Nest middleware can be implemented in
+either a Function or a Class.
+
+16
+00:01:05,000 --> 00:01:10,410
+Function Middleware is "stateless", it can *not* inject
+dependencies, and doesn't have access to the
+
+17
+00:01:10,410 --> 00:01:12,060
+Nest container.
+
+18
+00:01:12,060 --> 00:01:16,800
+On the other hand. Class Middleware can
+rely on external dependencies and inject providers
+
+19
+00:01:16,890 --> 00:01:19,620
+registered in the same module scope.
+
+20
+00:01:19,620 --> 00:01:22,710
+In this video we'll focus
+on building a Class Middleware.
+
+21
+00:01:22,710 --> 00:01:26,640
+But remember you can always use
+Functions to create them as well.
+
+22
+00:01:26,640 --> 00:01:30,870
+Let's fire up the terminal and generate a middleware
+class using the CLI and let's call it
+
+23
+00:01:30,870 --> 00:01:36,300
+"logging". Note that we generated this middleware in
+the /common/ directory again since it isn't
+
+24
+00:01:36,300 --> 00:01:39,220
+tied to any specific domain.
+
+25
+00:01:39,220 --> 00:01:44,440
+Let's open up this newly generated LoggingMiddleware
+file and see what we have inside.
+
+26
+00:01:44,440 --> 00:01:49,080
+As we can see the Nest CLI generated
+an example middleware without any logic inside.
+
+27
+00:01:49,750 --> 00:01:55,420
+Similar to Providers in Middleware is
+a Class with the @Injectable() decorator.
+
+28
+00:01:55,420 --> 00:02:02,080
+All middleware should implement the
+`NestMiddleware` interface exported from @nestjs/common.
+
+29
+00:02:02,080 --> 00:02:07,510
+This interface requires us to provide
+the `use()` method within our class.
+
+30
+00:02:07,510 --> 00:02:10,390
+This method, does not
+have any special requirements.
+
+31
+00:02:10,810 --> 00:02:17,830
+Just remember to *always* call the `next()` function
+otherwise the request will be left hanging.
+
+32
+00:02:17,830 --> 00:02:24,490
+For now we'll keep things simple, let's just
+add a console.log() before invoking the next() function
+
+33
+00:02:24,520 --> 00:02:29,710
+to see how middleware fits
+into the Request/Response lifecycle.
+
+34
+00:02:29,710 --> 00:02:34,240
+With this in place we can
+now register our newly created middleware.
+
+35
+00:02:34,240 --> 00:02:38,950
+As we've mentioned earlier middleware aren't
+specifically tied to any method.
+
+36
+00:02:38,950 --> 00:02:43,000
+We can't bind them in
+a declarative way using decorators.
+
+37
+00:02:43,000 --> 00:02:47,830
+Instead we bind middleware to a
+route path, represented as a String.
+
+38
+00:02:47,830 --> 00:02:50,590
+To register our LoggingMiddleware.
+
+39
+00:02:50,590 --> 00:02:53,950
+Let's open up our CommonModule file.
+
+40
+00:02:53,950 --> 00:03:02,420
+First let's make sure that our
+CommonModule class implements the NestModule interface.
+
+41
+00:03:02,420 --> 00:03:07,820
+This interface requires us to provide the
+`configure()` method, which takes the MiddlewareConsumer
+
+42
+00:03:07,880 --> 00:03:09,790
+as an argument.
+
+43
+00:03:09,790 --> 00:03:16,920
+The MiddlewareConsumer provides a set of useful
+methods to tie middleware to specific routes.
+
+44
+00:03:16,920 --> 00:03:21,260
+Just to test it out. Let's apply the LoggingMiddleware
+to *all* routes, using the Asteriks *, or
+
+45
+00:03:21,270 --> 00:03:23,400
+"wildcard operator".
+
+46
+00:03:23,400 --> 00:03:24,870
+To add our middleware.
+
+47
+00:03:24,870 --> 00:03:29,550
+Let's call the `apply()` method on
+`consumer`, passing in our `LoggingMiddleware`.
+
+48
+00:03:29,550 --> 00:03:35,700
+And then let's call the `.forRoutes(*)` method,
+passing in the wildcard Asteriks *.
+
+49
+00:03:35,700 --> 00:03:41,460
+Let's save our changes, and navigate to insomnia
+and perform an HTTP request to *any* endpoint.
+
+50
+00:03:43,080 --> 00:03:47,260
+Let's go back to VSCode and see
+if anything popped up in our terminal.
+
+51
+00:03:47,260 --> 00:03:51,400
+Great. We can see "Hi from
+middleware" String in our console.
+
+52
+00:03:51,400 --> 00:03:53,950
+Now taking a step back
+to our middleware `consumer`.
+
+53
+00:03:54,580 --> 00:03:58,810
+There are several other ways of
+tying middleware to different route paths.
+
+54
+00:03:58,810 --> 00:04:04,000
+So far we've bound the LoggingMiddleware to *every*
+route using the Asteriks * wild card.
+
+55
+00:04:04,000 --> 00:04:10,000
+But we could also apply only to routes with,
+let's say the "coffees" prefix if we want.
+
+56
+00:04:10,000 --> 00:04:15,730
+We can even restrict middleware further if we'd like
+let's say to a particular Request Method like
+
+57
+00:04:15,820 --> 00:04:25,570
+only for `GET` methods, by passing an object containing
+the route path and request method like so.
+
+58
+00:04:25,570 --> 00:04:30,580
+Note that we imported the Request method Enum we
+used in previous lessons to reference the desired
+
+59
+00:04:30,580 --> 00:04:33,670
+request method type.
+
+60
+00:04:33,670 --> 00:04:38,620
+Lastly we can also -exclude- certain routes from
+having the middleware applied with the `exclude()`
+
+61
+00:04:38,620 --> 00:04:45,460
+method. This method can take a single
+String, multiple Strings or a RouteInfo object.
+
+62
+00:04:45,550 --> 00:04:48,040
+Identifying routes to be excluded.
+
+63
+00:04:48,040 --> 00:04:52,630
+For example we can apply the middleware to every
+route -except- for those with the "coffees" prefix
+
+64
+00:04:52,630 --> 00:04:56,790
+if we wanted.
+
+65
+00:04:56,790 --> 00:04:59,730
+Now that we've looked at a few
+of the options available to us here.
+
+66
+00:05:00,390 --> 00:05:05,160
+Let's revert back to our original `forRoutes(*)`
+wildcard since we want to bind the
+
+67
+00:05:05,160 --> 00:05:08,270
+LoggingMiddleware to *every* existing
+endpoint for now.
+
+68
+00:05:08,270 --> 00:05:13,760
+Let's open up the LoggingMiddleware file again
+and add some additional functionality in here.
+
+69
+00:05:13,760 --> 00:05:19,130
+For a fun example, let's calculate "how long"
+the entire request/response cycle takes, by using
+
+70
+00:05:19,130 --> 00:05:20,210
+console.time().
+
+71
+00:05:21,050 --> 00:05:27,050
+Note that this calculation will include the
+Interceptors, Filters, Guards, method handlers etc.
+
+72
+00:05:27,080 --> 00:05:29,480
+that this route may have as well!
+
+73
+00:05:29,480 --> 00:05:34,610
+In this example we're hooking into the Express.js
+Response "finish" event so we know when our
+
+74
+00:05:34,610 --> 00:05:37,280
+console.timeEnd() should occur.
+
+75
+00:05:37,280 --> 00:05:40,700
+Let's save our changes and navigate to insomnia.
+
+76
+00:05:40,700 --> 00:05:48,250
+Now let's execute a random HTTP request to
+our application, and head back to the terminal.
+
+77
+00:05:48,250 --> 00:05:53,360
+As we can see there's a new request/response
+message indicating that the full round-trip took a
+
+78
+00:05:53,370 --> 00:05:56,170
+roughly 23 milliseconds.
+
+79
+00:05:56,170 --> 00:06:01,180
+This was all a basic example, but hopefully this
+shows you the potential that middleware brings to
+
+80
+00:06:01,180 --> 00:06:02,860
+an application.
+
+81
+00:06:02,860 --> 00:06:08,590
+For a more realistic use case you could potentially
+utilize something like what we just created, to
+
+82
+00:06:08,590 --> 00:06:14,080
+log "long lasting methods" to a database, and keep
+track of how long every API takes to complete.
+

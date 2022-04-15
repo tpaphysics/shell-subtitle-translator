@@ -1,0 +1,226 @@
+1
+00:00:00,710 --> 00:00:07,190
+A lot of NestJS is built around
+a powerful TypeScript language feature called "decorators".
+
+2
+00:00:07,190 --> 00:00:10,530
+Decorators are simply functions that apply logic.
+
+3
+00:00:10,530 --> 00:00:16,580
+NestJS provides a set of useful param decorators that
+you can use together with the HTTP route
+
+4
+00:00:16,580 --> 00:00:21,380
+handlers, for example @Body(),
+to extract the request.body.
+
+5
+00:00:21,380 --> 00:00:24,530
+Or @Param(), to pick
+a specific request "parameter".
+
+6
+00:00:25,100 --> 00:00:29,390
+Additionally we can create
+our own custom decorators.
+
+7
+00:00:29,390 --> 00:00:34,520
+Let's imagine that for some reason we want
+to retrieve the `request.protocol` from within the route
+
+8
+00:00:34,520 --> 00:00:40,490
+handler. Normally we would need to inject the
+entire Request object with the `@Req()` decorator
+
+9
+00:00:40,640 --> 00:00:43,340
+into the method definition.
+
+10
+00:00:43,340 --> 00:00:48,260
+However this makes this particular method harder to test
+since we would need to mock the entire
+
+11
+00:00:48,260 --> 00:00:52,070
+Request object every time we
+try to test this method.
+
+12
+00:00:52,070 --> 00:00:55,370
+In order to make our code
+more readable and easier to test.
+
+13
+00:00:55,760 --> 00:00:59,150
+Let's create a custom param decorator instead.
+
+14
+00:00:59,150 --> 00:01:06,580
+To get started let's open the /common/decorators
+folder, and create a protocol.decorator.ts inside
+
+15
+00:01:10,820 --> 00:01:17,060
+. Now, inside of this file, let's make
+use of the utility function: `CreateParamDecorator` imported
+
+16
+00:01:17,060 --> 00:01:21,220
+from @nestjs/common to build our custom decorator.
+
+17
+00:01:21,220 --> 00:01:25,820
+Since we're trying to find the `request.protocol` for
+our decorator, we're going to need to retrieve
+
+18
+00:01:25,820 --> 00:01:28,100
+it from the Request object.
+
+19
+00:01:28,100 --> 00:01:33,350
+We can retrieve this from the ExecutionContext
+we've seen in previous lessons, with `switch
+
+20
+00:01:33,500 --> 00:01:37,550
+ToHttp()`, and then
+calling `getRequest()` afterwards.
+
+21
+00:01:37,550 --> 00:01:41,870
+Let's simply return `request.protocol`
+and we're all set.
+
+22
+00:01:41,870 --> 00:01:44,180
+Great, now to test our decorator.
+
+23
+00:01:44,180 --> 00:01:49,610
+Let's open up our CoffeesController file and
+temporarily use it on the findAll() method
+
+24
+00:01:55,910 --> 00:02:01,730
+. Let's add a single console.log() within the method
+to log out this @Protocol() parameter, and see
+
+25
+00:02:01,730 --> 00:02:03,900
+what it gives us.
+
+26
+00:02:03,900 --> 00:02:10,050
+Let's just save our changes, navigate to insomnia,
+and execute a GET /coffees request to see
+
+27
+00:02:10,050 --> 00:02:15,570
+everything in action. Now let's head back
+to VSCode and fire up our terminal.
+
+28
+00:02:15,570 --> 00:02:19,590
+We could see "http", our protocol,
+was logged in the console!
+
+29
+00:02:19,590 --> 00:02:26,120
+Great it works. We can also pass
+"arguments" to our custom decorators if needed.
+
+30
+00:02:26,120 --> 00:02:30,950
+In this instance our @Protocol() decorator is fully stateless
+so there's no reason to pass in any
+
+31
+00:02:30,950 --> 00:02:34,310
+parameters since there's nothing to configure.
+
+32
+00:02:34,310 --> 00:02:39,620
+However in more sophisticated scenarios where the
+behavior of our decorator depends on different
+
+33
+00:02:39,620 --> 00:02:43,820
+conditions, we can pass the
+`data` argument into them.
+
+34
+00:02:43,820 --> 00:02:49,580
+For example let's say that we wanted to pass
+a default value to the decorator we just made.
+
+35
+00:02:49,580 --> 00:02:57,790
+Let's just pass a string of
+"https", between the @Protocol("https") parentheses.
+
+36
+00:02:57,790 --> 00:03:01,570
+To access this "value" from
+within our param decorator factory.
+
+37
+00:03:01,570 --> 00:03:07,840
+We can use the `data` argument, the
+first argument here we previously hadn't touched.
+
+38
+00:03:07,840 --> 00:03:10,480
+To make our decorator more self explanatory.
+
+39
+00:03:10,480 --> 00:03:15,670
+Let's change the argument name to "defaultValue", and
+set it to type "string", for better
+
+40
+00:03:15,670 --> 00:03:21,040
+readability and type-safety.
+
+41
+00:03:21,040 --> 00:03:21,940
+With this in place.
+
+42
+00:03:22,400 --> 00:03:26,560
+Now let's see if these values are actually
+coming into our decorator, and add a single
+
+43
+00:03:26,560 --> 00:03:31,990
+console.log(defaultValue) to log out this
+default value to our terminal.
+
+44
+00:03:31,990 --> 00:03:38,980
+Again. Let's make sure to save our changes, navigate
+to insomnia, and execute the same GET /coffees
+
+45
+00:03:38,980 --> 00:03:41,410
+request.
+
+46
+00:03:41,410 --> 00:03:44,170
+Back over to our terminal again.
+
+47
+00:03:44,170 --> 00:03:48,610
+We can see the defaultValue "https"
+object was logged in the console.
+
+48
+00:03:48,670 --> 00:03:49,060
+Great!
+

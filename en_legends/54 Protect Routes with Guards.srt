@@ -1,0 +1,471 @@
+1
+00:00:01,030 --> 00:00:03,610
+Guards have a single responsibility.
+
+2
+00:00:03,610 --> 00:00:08,960
+Which is to determine whether a given
+request is allowed access to something.
+
+3
+00:00:08,960 --> 00:00:16,100
+If the request meets certain conditions,
+such as permissions, roles, ACLs, etc..
+
+4
+00:00:16,100 --> 00:00:18,770
+It *will* be allowed access to that route.
+
+5
+00:00:18,770 --> 00:00:24,890
+If the conditions are *NOT* met, that it will
+be *denied* and an Error will be thrown.
+
+6
+00:00:24,890 --> 00:00:29,720
+One of the best use-cases for
+Guards: is Authentication and Authorization.
+
+7
+00:00:29,720 --> 00:00:35,600
+For example we could implement a Guard that extracts
+and validates a Token, and uses the extracted
+
+8
+00:00:35,600 --> 00:00:40,110
+information to determine whether the
+request can proceed or not.
+
+9
+00:00:40,110 --> 00:00:45,790
+Since there are many different approaches and
+strategies to handle authentication and authorization.
+
+10
+00:00:45,790 --> 00:00:51,160
+In this video we'll focus on a simplified example
+and learn how to leverage Guards themselves in our
+
+11
+00:00:51,160 --> 00:00:57,310
+projects. If you're interested in learning more
+about Authentication itself, check out our separate
+
+12
+00:00:57,310 --> 00:01:03,220
+Course Extension, which is particularly focused
+on the implementation of an Enterprise-grade
+
+13
+00:01:03,250 --> 00:01:08,140
+Authentication feature, and all of the
+complexities that go along with that.
+
+14
+00:01:08,140 --> 00:01:13,240
+All right. So to learn how Guards work conceptually,
+let's create a Guard that is responsible for 2
+
+15
+00:01:13,240 --> 00:01:18,850
+things:. 1) Validating whether an API_KEY
+is present within an "authorization" Header.
+
+16
+00:01:18,850 --> 00:01:24,220
+2) And secondly whether the route
+being accessed is specified as "public".
+
+17
+00:01:24,220 --> 00:01:26,590
+Let's call this new guard `ApiKeyGuard`.
+
+18
+00:01:27,580 --> 00:01:32,890
+Let's fire up the terminal and generate
+a guard class using the Nest CLI.
+
+19
+00:01:32,890 --> 00:01:39,370
+Let's enter in: `nest
+g guard common/guards/api-key
+
+20
+00:01:39,820 --> 00:01:44,110
+Note that we generated this guard in the /common/
+directory, where we can keep things that aren't
+
+21
+00:01:44,110 --> 00:01:46,920
+tied to any specific domain.
+
+22
+00:01:46,920 --> 00:01:52,910
+All right so let's open up this newly generated
+ApiKeyGuard file, and see what we have inside.
+
+23
+00:01:52,910 --> 00:01:58,160
+As we can see the Nest CLI generated an example
+guard for us, without any logic inside of course.
+
+24
+00:01:58,940 --> 00:02:00,090
+Similar to providers.
+
+25
+00:02:00,380 --> 00:02:06,340
+A guard is just a Class with the
+@Injectable decorator which we've seen in previous videos.
+
+26
+00:02:06,340 --> 00:02:10,930
+One important requirement of guards is that
+they should implement the `canActivate` interface
+
+27
+00:02:11,110 --> 00:02:14,380
+exported from @nestjs/common.
+
+28
+00:02:14,380 --> 00:02:19,090
+This interface requires us to provide
+the canActivate() method within our class.
+
+29
+00:02:19,090 --> 00:02:24,580
+This canActivate method should return a Boolean,
+indicating whether the current request is allowed
+
+30
+00:02:24,580 --> 00:02:27,760
+to proceed OR denied access.
+
+31
+00:02:27,760 --> 00:02:34,000
+This method can also return a Response that's
+either synchronous or asynchronous, such as a Promise
+
+32
+00:02:34,060 --> 00:02:35,690
+or Observable.
+
+33
+00:02:35,690 --> 00:02:39,610
+Nest will use the return value
+to control the next action.
+
+34
+00:02:39,610 --> 00:02:43,120
+If it returns `true`: the
+request will be processed.
+
+35
+00:02:43,120 --> 00:02:46,270
+If it returns `false`: Nest will deny the request.
+
+36
+00:02:47,110 --> 00:02:51,280
+Looking at the example code the
+Nest CLI generated for us here.
+
+37
+00:02:51,280 --> 00:02:54,490
+We have `return true` hardcoded for now.
+
+38
+00:02:54,490 --> 00:02:58,300
+This means that currently, every request
+will be allowed to proceed!
+
+39
+00:02:58,300 --> 00:03:05,320
+Just for testing purposes, let's change this line
+to `return false`, indicating that every request
+
+40
+00:03:05,470 --> 00:03:07,060
+should be *denied* access.
+
+41
+00:03:07,930 --> 00:03:11,400
+And now that our initial Mock Guard is all set.
+
+42
+00:03:11,400 --> 00:03:14,590
+Let's bind it to our application "globally".
+
+43
+00:03:14,590 --> 00:03:17,970
+Let's open up the main.ts file.
+
+44
+00:03:17,970 --> 00:03:25,790
+And add `appUseGlobalGuards()` passing in our
+new ApiKeyGuard inside of it.
+
+45
+00:03:27,430 --> 00:03:32,630
+Great. Let's make sure that our application is
+running in the background, and let's navigate to
+
+46
+00:03:32,630 --> 00:03:35,910
+insomnia and test any endpoint.
+
+47
+00:03:35,910 --> 00:03:42,690
+As we can see ALL of our endpoints now
+respond with status "403 Forbidden Resource", just as we
+
+48
+00:03:42,690 --> 00:03:46,030
+expected. It worked perfectly.
+
+49
+00:03:46,030 --> 00:03:52,270
+But right now our Guard is not programmatically
+determining anything about our route or the caller
+
+50
+00:03:52,270 --> 00:03:54,910
+yet. It's simply always returning `false`.
+
+51
+00:03:55,410 --> 00:03:58,150
+That doesn't make much sense right?
+
+52
+00:03:58,150 --> 00:04:01,930
+Instead, let's set up our Guard to handle the
+scenario we talked about in the beginning of this
+
+53
+00:04:01,930 --> 00:04:03,280
+lesson.
+
+54
+00:04:03,280 --> 00:04:09,190
+Which is to "validate an API_KEY that should be
+present within each request", but -only- on routes
+
+55
+00:04:09,250 --> 00:04:11,770
+that are *not* specified as "public".
+
+56
+00:04:11,770 --> 00:04:14,300
+So how can we get started here.
+
+57
+00:04:14,300 --> 00:04:18,890
+Well first let's define this
+API_KEY that we're talking about.
+
+58
+00:04:18,890 --> 00:04:23,210
+To make sure that we *never* push
+this "secret key" to our git repo.
+
+59
+00:04:23,210 --> 00:04:26,030
+Let's define the API_KEY
+as an environment variable.
+
+60
+00:04:26,600 --> 00:04:33,950
+Open up our .env file that we created in
+a previous lesson and let's add the following `API_KEY`
+
+61
+00:04:33,950 --> 00:04:36,050
+line.
+
+62
+00:04:36,050 --> 00:04:42,090
+The API_KEY here is just a random generated String, so
+feel free to use whatever you'd like for this
+
+63
+00:04:42,090 --> 00:04:44,010
+example.
+
+64
+00:04:44,010 --> 00:04:47,930
+With this in place. Let's head back to our Guard.
+
+65
+00:04:47,930 --> 00:04:54,300
+Here in our guard. We want to retrieve the API_KEY
+from any incoming request that is not labeled as
+
+66
+00:04:54,300 --> 00:04:58,490
+public. We'll be handling this
+public part in a moment.
+
+67
+00:04:58,490 --> 00:05:04,620
+For our API_KEY. Let's assume that the caller
+is passing this key as an "authorization header".
+
+68
+00:05:04,620 --> 00:05:08,640
+To get the information about
+this incoming HTTP Request.
+
+69
+00:05:08,640 --> 00:05:13,740
+We'll need to access it all from
+the ExecutionContext ("context" param), which inherits from
+
+70
+00:05:13,740 --> 00:05:19,560
+ArgumentsHost, which we've already familiarized yourself with
+when we used it with the Exception
+
+71
+00:05:19,560 --> 00:05:21,160
+Filter.
+
+72
+00:05:21,160 --> 00:05:26,470
+We can actually use those same helper methods from
+before, but this time, to get the reference of
+
+73
+00:05:26,470 --> 00:05:30,490
+the Request object instead of the Response.
+
+74
+00:05:30,490 --> 00:05:36,940
+This switchToHttp() method, gives us access to
+the native in-flight Request, Response and Next
+
+75
+00:05:36,940 --> 00:05:40,120
+objects! Which is exactly what we need.
+
+76
+00:05:40,120 --> 00:05:45,430
+Next we need to call the getRequest() method
+on it, which will return our underlying platform's
+
+77
+00:05:45,520 --> 00:05:47,620
+Request wrapper object.
+
+78
+00:05:47,860 --> 00:05:51,400
+Remember in Nest this is Express.js By default.
+
+79
+00:05:51,400 --> 00:05:54,410
+But it could also be swapped for Fastify.
+
+80
+00:05:54,410 --> 00:05:56,420
+For better type-safety here.
+
+81
+00:05:56,420 --> 00:06:03,090
+Let's specify the type as a `Request` importing
+this Type from the "express" package again.
+
+82
+00:06:03,090 --> 00:06:08,910
+Now let's use this Request object to retrieve
+the "authorization" header from each request, if it's
+
+83
+00:06:08,910 --> 00:06:16,810
+even there. Lastly, let's compare the authorization
+header passed in, with the registered API_KEY
+
+84
+00:06:16,900 --> 00:06:19,600
+we have stored in our environment variable.
+
+85
+00:06:19,600 --> 00:06:25,000
+For now we'll simply access the environment
+variables using the `process.env` object but ideally
+
+86
+00:06:25,060 --> 00:06:28,610
+you'd want to leverage
+the (@nestjs/config) `ConfigService` instead.
+
+87
+00:06:28,610 --> 00:06:29,750
+With all of this in place.
+
+88
+00:06:29,870 --> 00:06:35,180
+Let's open up insomnia and test *any* endpoint in
+our application, and see if our Guard works so
+
+89
+00:06:35,180 --> 00:06:43,740
+far. As we can see our application
+responded with the status 403 Forbidden Resource.
+
+90
+00:06:43,740 --> 00:06:49,200
+Since we didn't pass in any authorization
+header especially one with our specific API_KEY.
+
+91
+00:06:49,200 --> 00:06:52,150
+It looks like our Guard is working perfectly.
+
+92
+00:06:52,150 --> 00:06:57,760
+Let's try the same API request again but this
+time let's add an "authorization" header with the
+
+93
+00:06:57,760 --> 00:07:04,140
+correct API_KEY.
+
+94
+00:07:04,140 --> 00:07:05,070
+With this in place.
+
+95
+00:07:05,190 --> 00:07:09,410
+Let's hit send and call the endpoint again.
+
+96
+00:07:09,410 --> 00:07:13,250
+Perfect. We've got a 200 Response
+back and no error this time!
+
+97
+00:07:13,250 --> 00:07:18,770
+Our Guard was able to verify that the authorization
+header matched our secret API_KEY and we were
+
+98
+00:07:18,770 --> 00:07:21,440
+allowed access to continue the API request.
+
+99
+00:07:21,830 --> 00:07:28,160
+So far we've finished setting up the API_KEY
+validation functionality we wanted but we still aren't
+
+100
+00:07:28,160 --> 00:07:32,150
+checking whether the specific route being
+accessed is "public" or not.
+
+101
+00:07:32,150 --> 00:07:37,700
+In the next chapter we'll look at how Metadata and
+a few other Nest features can help us achieve
+
+102
+00:07:37,820 --> 00:07:38,510
+just that!
+

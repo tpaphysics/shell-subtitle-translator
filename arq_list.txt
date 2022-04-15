@@ -1,0 +1,10 @@
+51 Introducing More Building Blocks.srt
+52 Understanding Binding Techniques.srt
+53 Catch Exceptions with Filters.srt
+54 Protect Routes with Guards.srt
+55 Using Metadata to Build Generic Guards or Interceptors.srt
+56 Add Pointcuts with Interceptors.srt
+57 Handling Timeouts with Interceptors.srt
+58 Creating Custom Pipes.srt
+59 Bonus Add Request Logging with Middleware.srt
+60 Bonus Create Custom Param Decorators.srt

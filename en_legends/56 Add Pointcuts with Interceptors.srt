@@ -1,0 +1,416 @@
+1
+00:00:00,920 --> 00:00:07,730
+Interceptors, have many useful capabilities inspired
+by the aspect oriented programming technique.
+
+2
+00:00:07,730 --> 00:00:15,330
+This technique aims to increase modularity by
+allowing the separation of cross-cut and concerns.
+
+3
+00:00:15,330 --> 00:00:20,490
+Interceptors achieve this by adding additional behavior
+to existing code, without modifying the code
+
+4
+00:00:20,490 --> 00:00:23,730
+itself! Interceptors make it possible for us to:.
+
+5
+00:00:24,420 --> 00:00:27,990
+1) Bind extra logic before
+or after method execution.
+
+6
+00:00:28,950 --> 00:00:32,830
+2) Transform the "Result" returned from a method.
+
+7
+00:00:32,830 --> 00:00:34,790
+3) Transform the "Exception" thrown from a method.
+
+8
+00:00:35,760 --> 00:00:38,190
+4) Extend basic method behavior.
+
+9
+00:00:39,060 --> 00:00:43,830
+5) Or even completely overriding a method
+- depending on a specific condition.
+
+10
+00:00:44,250 --> 00:00:48,980
+For example doing something
+like caching various responses.
+
+11
+00:00:48,980 --> 00:00:52,440
+All right. So to learn
+how interceptors work conceptually.
+
+12
+00:00:52,440 --> 00:00:57,570
+Let's run through an example use-case where we *always*
+want our responses, to be located within a
+
+13
+00:00:57,570 --> 00:00:59,190
+`data` property (data: response_here).
+
+14
+00:00:59,190 --> 00:01:02,670
+And create a new interceptor
+to handle this for us.
+
+15
+00:01:02,670 --> 00:01:07,290
+Let's call this
+new interceptor WrapResponseInterceptor.
+
+16
+00:01:07,290 --> 00:01:13,980
+This new interceptor will handle *all* incoming requests,
+and "wrap" our data for us automatically.
+
+17
+00:01:13,980 --> 00:01:18,120
+To get started. Let's generate an interceptor
+class using the Nest CLI by entering:.
+
+18
+00:01:18,180 --> 00:01:23,400
+`nest g
+interceptor common/interceptor/wrap-response
+
+19
+00:01:23,400 --> 00:01:27,160
+Note that we generated this interceptor in the
+/common/ directory like we have many times before,
+
+20
+00:01:27,160 --> 00:01:31,340
+since this interceptor isn't tied
+to any specific domain.
+
+21
+00:01:31,350 --> 00:01:37,310
+Let's open up this newly generated WrapResponseInterceptor
+file and see what we have inside.
+
+22
+00:01:37,310 --> 00:01:42,950
+The Nest CLI generated an example interceptor
+for us without any business logic.
+
+23
+00:01:42,950 --> 00:01:48,930
+Similar to Providers, an Interceptor is
+a class with the @Injectable decorator.
+
+24
+00:01:48,930 --> 00:01:56,010
+All interceptors should implement the
+`NestInterceptor` interface exported from @nestjs/common.
+
+25
+00:01:56,010 --> 00:02:00,870
+This interface requires that we provide
+the `intercept()` method within our class.
+
+26
+00:02:00,870 --> 00:02:06,420
+The intercept() method should return an
+Observable from the RxJS library.
+
+27
+00:02:06,420 --> 00:02:08,040
+If you're not familiar with RxJS.
+
+28
+00:02:08,430 --> 00:02:11,850
+It is a library for
+Reactive Programming using Observables.
+
+29
+00:02:11,850 --> 00:02:16,110
+Making it easier to compose
+asynchronous or callback base code.
+
+30
+00:02:17,020 --> 00:02:21,010
+RxJS itself is outside of the scope
+of what we can dive into here.
+
+31
+00:02:21,280 --> 00:02:26,380
+Just know that it's a powerful
+alternative to Promises or callbacks.
+
+32
+00:02:26,380 --> 00:02:31,090
+Back to our code. The `CallHandler` interface
+here implements the `handle()` method (next.handle()),
+
+33
+00:02:31,480 --> 00:02:36,440
+which you can use to invoke the
+route handler method within your interceptor.
+
+34
+00:02:36,440 --> 00:02:40,110
+If you don't call the handle() method
+in your implementation of the intercept method.
+
+35
+00:02:40,580 --> 00:02:45,010
+The route handler method *WON'T
+be executed at all*.
+
+36
+00:02:45,010 --> 00:02:50,530
+This approach means that the intercept() method
+effectively "wraps" the Request/Response stream -
+
+37
+00:02:51,070 --> 00:02:57,670
+allowing us to implement custom logic both *before*
+and *after* the execution of the final route
+
+38
+00:02:57,760 --> 00:03:03,490
+handler. All right so we've covered
+a lot of theory so far.
+
+39
+00:03:03,490 --> 00:03:12,760
+Let's add some console.log()'s, to see where
+interceptors fit in the Request/Response lifecycle.
+
+40
+00:03:12,760 --> 00:03:16,870
+Since we've called the console.log()
+*before* calling the next.handle() method.
+
+41
+00:03:17,740 --> 00:03:23,590
+Our "Before..." message should appear in the console
+BEFORE the actual route handler is executed by
+
+42
+00:03:23,590 --> 00:03:25,840
+the framework.
+
+43
+00:03:25,840 --> 00:03:28,840
+Since handle returns an RxJS Observable.
+
+44
+00:03:29,260 --> 00:03:34,680
+We have a wide choice of operators we
+can use to manipulate the "stream" here.
+
+45
+00:03:34,680 --> 00:03:41,430
+In this example. We're using the tap() operator
+which invokes an anonymous logging function upon
+
+46
+00:03:41,430 --> 00:03:44,880
+graceful termination of the Observable stream.
+
+47
+00:03:44,880 --> 00:03:49,920
+But (the tap() operator) doesn't otherwise interfere
+with the response cycle at all.
+
+48
+00:03:49,920 --> 00:03:55,080
+The `data` argument of the arrow function and we passed
+into the tap operator here, is in fact **the
+
+49
+00:03:55,080 --> 00:03:58,290
+response** sent back from the route handler!
+
+50
+00:03:58,290 --> 00:04:02,060
+Basically think of this as whatever
+comes back from our endpoint!
+
+51
+00:04:02,060 --> 00:04:05,520
+Here. We're just doing a
+console.log() to say "After..."
+
+52
+00:04:05,520 --> 00:04:08,880
+And logging that `data` back as well.
+
+53
+00:04:08,880 --> 00:04:10,590
+To test it all out.
+
+54
+00:04:10,590 --> 00:04:14,470
+Let's bind this interceptor
+to our application globally.
+
+55
+00:04:14,470 --> 00:04:17,230
+Let's open our main.ts file and add:
+
+56
+00:04:17,630 --> 00:04:25,650
+`app.UseGlobalInterceptors()`, passing in
+`new WrapResponseInterceptor`.
+
+57
+00:04:25,650 --> 00:04:26,580
+Great, now.
+
+58
+00:04:26,910 --> 00:04:31,650
+Let's make sure our application is running in
+the background and let's navigate to insomnia and
+
+59
+00:04:31,650 --> 00:04:36,010
+test any endpoint in our application.
+
+60
+00:04:36,010 --> 00:04:40,330
+First let's make sure we have
+some Coffees stored in our database.
+
+61
+00:04:40,330 --> 00:04:47,500
+To do so. Let's hit the POST
+/coffees endpoint and add a random Coffee.
+
+62
+00:04:47,500 --> 00:04:52,330
+Perfect. Now let's hit the GET /coffees endpoint
+and switch back to VSCode to see those
+
+63
+00:04:52,330 --> 00:04:57,500
+console.log()'s in the terminal.
+
+64
+00:04:57,500 --> 00:05:00,230
+As we can see "Before..." was logged.
+
+65
+00:05:00,230 --> 00:05:05,660
+And *then* "After...", followed by the actual
+`value` from our findAll() method, which represents
+
+66
+00:05:05,660 --> 00:05:07,580
+the /coffees endpoint.
+
+67
+00:05:07,580 --> 00:05:10,490
+It looks like our interceptor worked!
+
+68
+00:05:10,490 --> 00:05:15,790
+Let's open up insomnia again,
+and test another endpoint.
+
+69
+00:05:15,790 --> 00:05:21,940
+Let's test (GET) /coffees/1 this time.
+
+70
+00:05:21,940 --> 00:05:26,140
+This time we should see a single object
+following the "After..." log in our terminal.
+
+71
+00:05:26,590 --> 00:05:27,940
+Great so far so good.
+
+72
+00:05:28,930 --> 00:05:35,110
+So now that we could see how interceptors
+work and their part in the Request/Response lifecycle.
+
+73
+00:05:35,110 --> 00:05:40,060
+Let's implement our "data wrapper" idea we talked about
+at the beginning of this lesson and "wrap"
+
+74
+00:05:40,060 --> 00:05:43,650
+our Response's inside of a `data` property.
+
+75
+00:05:43,650 --> 00:05:53,270
+To do this let's replace the
+tap() function with the map() operator.
+
+76
+00:05:53,270 --> 00:05:59,300
+The map() operator takes a value from
+the stream and returns a modified one.
+
+77
+00:05:59,300 --> 00:06:03,110
+Since we wanted to wrap all
+responses in the `data` property.
+
+78
+00:06:03,110 --> 00:06:07,730
+Let's return an object with a key/value of data.
+
+79
+00:06:07,730 --> 00:06:13,820
+Every time this map() function is called, it returns
+a new object with a `data` property filled with
+
+80
+00:06:13,820 --> 00:06:16,810
+our *original response*.
+
+81
+00:06:16,810 --> 00:06:21,130
+Remember everything we've done here is mainly for
+demonstration purposes but hopefully now you can
+
+82
+00:06:21,130 --> 00:06:26,440
+see the power of interceptors, and how there's a
+potential to do so many other things here:.
+
+83
+00:06:26,590 --> 00:06:31,300
+Like passing down version numbers,
+analytics tracking, etc etc..
+
+84
+00:06:31,300 --> 00:06:36,540
+All right so let's save all of our changes
+open up insomnia and test out this interceptor.
+
+85
+00:06:36,540 --> 00:06:42,070
+Let's execute any HTTP request and see
+what the application sends back to us.
+
+86
+00:06:42,070 --> 00:06:47,230
+Perfect as we can see, the response was
+automatically wrapped in an object within the `data`
+
+87
+00:06:47,230 --> 00:06:54,280
+property. So wrapping up - in this video we've
+shown how interceptors give us an incredible power
+
+88
+00:06:54,280 --> 00:06:59,940
+to manipulate Requests OR Responses,
+without changing *any* underlying code.
+

@@ -1,0 +1,224 @@
+1
+00:00:00,790 --> 00:00:06,010
+So far we've learned how to use Interceptor's
+to bind extra logic *before* and *after* method
+
+2
+00:00:06,010 --> 00:00:11,560
+execution, as well as automatically logging and
+*transforming* results returned from route handlers
+
+3
+00:00:12,500 --> 00:00:19,410
+. Another technique useful for interceptors is to
+extend the basic function behavior by applying
+
+4
+00:00:19,830 --> 00:00:23,240
+RxJS operators to the Response stream.
+
+5
+00:00:23,240 --> 00:00:26,700
+Let's see this in action with a realistic example.
+
+6
+00:00:26,700 --> 00:00:29,820
+To help us learn about this concept by example.
+
+7
+00:00:29,820 --> 00:00:34,530
+Let's imagine that we need to handle
+"timeouts" for all of our route requests.
+
+8
+00:00:34,530 --> 00:00:39,780
+When an endpoint does *not* return anything after a
+certain period of time, we need to -terminate-
+
+9
+00:00:39,780 --> 00:00:43,350
+the request, and send back an Error message.
+
+10
+00:00:43,350 --> 00:00:47,940
+Let's start by generating another interceptor, naming it
+"timeout", and also placing it in the
+
+11
+00:00:47,940 --> 00:00:50,580
+/common/interceptors folder.
+
+12
+00:00:50,580 --> 00:00:55,690
+Let's open up this newly generated TimeoutInterceptor,
+and add some logic in there.
+
+13
+00:00:55,690 --> 00:01:00,400
+In our example we want to terminate a
+request after a specific period of time.
+
+14
+00:01:00,400 --> 00:01:07,090
+So let's use the timeout() operator
+imported from "rxjs/operators" to achieve this.
+
+15
+00:01:07,090 --> 00:01:12,310
+To demo this easily, Let's set a
+very quick `timeout` of 3000 milliseconds.
+
+16
+00:01:12,310 --> 00:01:16,930
+This means that when a request is made,
+after 3 seconds, the request processing will be
+
+17
+00:01:16,930 --> 00:01:19,690
+automatically cancelled for us.
+
+18
+00:01:19,690 --> 00:01:25,420
+To test it out. Let's bind this second interceptor
+to our application globally, and since it has no
+
+19
+00:01:25,420 --> 00:01:30,040
+dependencies, we can add this in our main.ts file.
+
+20
+00:01:30,040 --> 00:01:36,270
+So let's add our new TimeoutInterceptor
+here in our useGlobalInterceptors() method.
+
+21
+00:01:36,270 --> 00:01:42,880
+Note that we can actually bind multiple Interceptors
+here simply by separating them with commas.
+
+22
+00:01:42,880 --> 00:01:46,090
+Now to make sure that
+our interceptor works properly.
+
+23
+00:01:46,090 --> 00:01:52,210
+Let's open up the CoffeesController file and
+temporarily add a `setTimeout()` function in our
+
+24
+00:01:52,210 --> 00:01:59,320
+findAll() method to simulate a very long delay.
+
+25
+00:01:59,320 --> 00:02:05,470
+Let's set a timeout for 5 seconds, higher than the
+3 seconds we set in our interceptor to purposely
+
+26
+00:02:05,470 --> 00:02:08,650
+trigger our TimeoutInterceptor.
+
+27
+00:02:08,650 --> 00:02:16,730
+Perfect. Now let's open up insomnia and execute this
+endpoint by making a request for GET /coffees
+
+28
+00:02:21,080 --> 00:02:23,180
+. As we can see, after 3 seconds.
+
+29
+00:02:23,630 --> 00:02:28,850
+We received a 500 Error
+which means our TimeoutInterceptor worked!
+
+30
+00:02:28,850 --> 00:02:32,180
+However the Error message we got
+back is not really descriptive.
+
+31
+00:02:32,180 --> 00:02:33,790
+It says "Internal Server Error".
+
+32
+00:02:34,130 --> 00:02:37,920
+But how could we make
+this message more user-friendly?
+
+33
+00:02:37,920 --> 00:02:39,830
+Heading back to our TimeoutInterceptor again.
+
+34
+00:02:40,250 --> 00:02:45,200
+Let's chain another operator called `catchError()`
+inside of our pipe() method
+
+35
+00:02:50,230 --> 00:02:57,740
+. The RxJS catchError() operator allows us to
+catch all exceptions that occurred within the stream.
+
+36
+00:02:57,740 --> 00:03:03,370
+In the callback function we provide here we can
+check if the error throne is an *instance* of
+
+37
+00:03:03,400 --> 00:03:04,880
+`TimeoutError`.
+
+38
+00:03:04,880 --> 00:03:06,560
+Which is also imported from 'rxjs'.
+
+39
+00:03:07,040 --> 00:03:14,300
+If so, we use a utility function `throwError()`
+from 'rxjs' to create a stream which immediately
+
+40
+00:03:14,300 --> 00:03:17,030
+emits an Error for whatever is passed into it.
+
+41
+00:03:17,570 --> 00:03:23,000
+Since we want our error message to be more
+specific for this scenario, let's use a NestJS class
+
+42
+00:03:23,000 --> 00:03:28,700
+called RequestTimeoutException imported from @nestjs/common, so
+we can throw the correct error
+
+43
+00:03:28,700 --> 00:03:34,260
+message back to our users letting them know
+that the request has actually timed out.
+
+44
+00:03:34,260 --> 00:03:41,100
+Great. So let's save our changes navigate back
+to insomnia and test the endpoint once again.
+
+45
+00:03:41,100 --> 00:03:46,940
+As we can see. This time we received the
+408 response with the descriptive message "Request Timeout"
+
+46
+00:03:48,060 --> 00:03:52,960
+. So in this lesson we learned how to
+add additional superpowers to our interceptors along with some
+
+47
+00:03:52,960 --> 00:03:55,360
+new tricks from RxJS.
+
+48
+00:03:55,360 --> 00:03:59,860
+All which are very common scenarios and
+helpful in most of our NestJS applications.
+

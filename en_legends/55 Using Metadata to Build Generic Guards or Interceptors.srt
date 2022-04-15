@@ -1,0 +1,601 @@
+1
+00:00:00,970 --> 00:00:04,810
+In the last lesson, we implemented the
+first goal for our new Guard.
+
+2
+00:00:04,810 --> 00:00:10,560
+Which was to verify whether an API token
+is present when a route is accessed.
+
+3
+00:00:10,560 --> 00:00:14,730
+In this lesson we'll be looking at how we
+can complete the next piece of functionality we needed,
+
+4
+00:00:14,880 --> 00:00:19,620
+which was to detect whether the route
+being access is declared "public" or not.
+
+5
+00:00:19,620 --> 00:00:24,990
+How can we declaratively specify which end points in
+our application are public, or any "data" we
+
+6
+00:00:24,990 --> 00:00:27,600
+want stored alongside controllers or routes.
+
+7
+00:00:28,850 --> 00:00:33,520
+This is exactly where custom
+Metadata comes into play.
+
+8
+00:00:33,520 --> 00:00:38,620
+Nest provides the ability to attach custom
+metadata to route handlers through the `@SetMetadata`
+
+9
+00:00:38,650 --> 00:00:39,880
+decorator.
+
+10
+00:00:39,880 --> 00:00:43,780
+The @SetMetadata decorator takes two parameters.
+
+11
+00:00:43,780 --> 00:00:49,240
+First being the metadata "key" that will be used as
+the lookup key, and the second parameter is the
+
+12
+00:00:49,240 --> 00:00:52,660
+metadata "value" which can be any Type.
+
+13
+00:00:52,660 --> 00:00:57,690
+This is where we put whatever values we
+want to store for this specific key.
+
+14
+00:00:57,690 --> 00:01:01,160
+So let's put this to use,
+to learn how it all works.
+
+15
+00:01:01,160 --> 00:01:02,810
+Let's open our coffees controller file.
+
+16
+00:01:03,140 --> 00:01:08,870
+Head over to our findAll() method, and
+add this @SetMetadata decorator on top.
+
+17
+00:01:08,870 --> 00:01:14,290
+Making sure it's imported
+from the @nestjs/common package.
+
+18
+00:01:14,290 --> 00:01:15,070
+Inside the decorator.
+
+19
+00:01:15,460 --> 00:01:19,650
+Let's pass those metadata
+key and value parameters.
+
+20
+00:01:19,650 --> 00:01:28,980
+For our key. Let's enter the String of "isPublic",
+for our value let's enter a Boolean of `true`.
+
+21
+00:01:29,990 --> 00:01:35,150
+This is the most barebones way of setting up metadata
+on a route, but it's not actually the best
+
+22
+00:01:35,150 --> 00:01:41,450
+practice. Ideally we should create our own
+decorator to achieve the same result.
+
+23
+00:01:41,450 --> 00:01:46,880
+This is a much better practice because we will
+have less duplicated code, we can reuse the decorator
+
+24
+00:01:46,880 --> 00:01:52,670
+in multiple places, and a custom
+decorator gives us much more type-safety.
+
+25
+00:01:52,670 --> 00:01:58,400
+Let's improve our existing code and make
+our own decorator, and call it `Public`.
+
+26
+00:01:58,400 --> 00:02:07,240
+First let's create a new folder within
+the /common/ directory and call it /decorators/.
+
+27
+00:02:07,240 --> 00:02:11,600
+Here we can store any other
+future decorators we might make.
+
+28
+00:02:11,600 --> 00:02:16,640
+In this folder. Let's create
+a new file called `public.decorator.
+
+29
+00:02:16,660 --> 00:02:20,460
+ts`.
+
+30
+00:02:20,460 --> 00:02:24,790
+In this file. We're going to export 2 things.
+
+31
+00:02:24,790 --> 00:02:31,000
+1) being our metadata "key", and the other being
+our new decorator itself, that we're going to call
+
+32
+00:02:31,030 --> 00:02:33,190
+"Public".
+
+33
+00:02:33,190 --> 00:02:40,330
+For our key let's `export const IS_PUBLIC_KEY` and
+set it equal to the string of "isPublic".
+
+34
+00:02:40,750 --> 00:02:43,300
+Just like we called it previously.
+
+35
+00:02:43,300 --> 00:02:49,060
+The benefit of exporting this variable here is that
+anywhere we might look up this metadata, we can
+
+36
+00:02:49,060 --> 00:02:55,930
+now import this variable, instead of using
+"magic strings" and accidentally mistyping the name.
+
+37
+00:02:55,930 --> 00:03:02,380
+Now let's export our decorator by entering `export const
+Public`, and setting this equal to an arrow
+
+38
+00:03:02,380 --> 00:03:09,510
+function (=&gt;), that returns `SetMetadata`.
+
+39
+00:03:09,510 --> 00:03:14,130
+Inside of SetMetadata(/* here */), just like before we
+need to pass in that "key" and "value".
+
+40
+00:03:14,130 --> 00:03:22,390
+So let's use our IS_PUBLIC_KEY variable and for the
+value let's pass in the Boolean of `true`, just
+
+41
+00:03:22,390 --> 00:03:24,610
+like we did previously.
+
+42
+00:03:24,610 --> 00:03:29,060
+And that's it! We just made our first decorator!
+
+43
+00:03:29,060 --> 00:03:35,030
+Next. Let's swap out the code we previously added
+in our CoffeesController to use our new decorator.
+
+44
+00:03:35,030 --> 00:03:39,590
+Let's head back over to that findAll()
+method signature and replace the previously added
+
+45
+00:03:39,590 --> 00:03:44,360
+@SetMetadata expression with this `@Public()` decorator, making
+sure to import it from our local
+
+46
+00:03:44,360 --> 00:03:48,670
+directory.
+
+47
+00:03:48,670 --> 00:03:54,010
+Perfect. We now have a much more future proof
+and easily reusable decorator that we can use
+
+48
+00:03:54,010 --> 00:03:57,190
+throughout our entire application if needed!
+
+49
+00:03:57,190 --> 00:04:03,690
+Let's tie everything together and fix
+up that ApiKeyGuard to use it.
+
+50
+00:04:03,690 --> 00:04:08,970
+Currently our Guard returns true or false, depending
+on whether the API_KEY was provided with the
+
+51
+00:04:08,970 --> 00:04:13,740
+request. But now we need to
+add our `isPublic` logic here.
+
+52
+00:04:13,740 --> 00:04:19,440
+We need the Guard to return `true`, when
+the isPublic metadata is found, *before* continuing further
+
+53
+00:04:19,740 --> 00:04:23,220
+and testing whether an API_KEY is present.
+
+54
+00:04:23,220 --> 00:04:26,850
+In order to access the
+routes metadata in our guard.
+
+55
+00:04:26,850 --> 00:04:31,050
+We'll need to use a
+new helper class called `Reflector`.
+
+56
+00:04:31,050 --> 00:04:36,600
+The Reflector class allows us to
+retrieve metadata within a specific context.
+
+57
+00:04:37,410 --> 00:04:44,670
+This class is provided out of the box
+by the Nest framework, from the @nestjs/core package.
+
+58
+00:04:44,670 --> 00:04:54,190
+Let's inject the Reflector class
+here, inside of our constructor().
+
+59
+00:04:54,190 --> 00:05:00,070
+Now we can use this provider within the
+canActivate() method, to retrieve the metadata of our
+
+60
+00:05:00,070 --> 00:05:01,840
+handler.
+
+61
+00:05:01,840 --> 00:05:05,550
+Let's add a new variable called isPublic.
+
+62
+00:05:05,550 --> 00:05:13,170
+With this variable, let's utilize `this.reflector.get()` which
+looks up metadata by its "key".
+
+63
+00:05:13,170 --> 00:05:17,640
+In our case the exported variable `IS_PUBLIC_KEY`,
+we just made a moment ago.
+
+64
+00:05:19,630 --> 00:05:24,670
+Reflector requires a "target object
+context", for the second parameter.
+
+65
+00:05:24,670 --> 00:05:29,590
+In our case we want to target
+the *method handler* in our given context.
+
+66
+00:05:29,590 --> 00:05:36,910
+So let's pass in `context.getHandler()`.
+
+67
+00:05:36,910 --> 00:05:37,720
+Just for reference.
+
+68
+00:05:38,050 --> 00:05:43,810
+If you needed to retrieve metadata from
+a *Class level*, you'd call `context.getClass()` here
+
+69
+00:05:43,810 --> 00:05:48,700
+instead. For more information on
+Reflector and other possibilities here.
+
+70
+00:05:49,090 --> 00:05:53,300
+Read more about it in the NestJS documentation.
+
+71
+00:05:53,300 --> 00:05:58,820
+Okay. Great. Now that we have the value from
+our decorator inside of our Guard there's one last
+
+72
+00:05:58,820 --> 00:06:00,910
+thing we need to do.
+
+73
+00:06:00,910 --> 00:06:02,560
+If a route is "public".
+
+74
+00:06:02,560 --> 00:06:06,400
+We can simply skip the validation of the API_KEY.
+
+75
+00:06:06,400 --> 00:06:10,270
+Let's add a simple if statement
+and if isPublic is `true`.
+
+76
+00:06:11,110 --> 00:06:16,860
+Let's just return true.
+
+77
+00:06:16,890 --> 00:06:21,570
+And lastly we mentioned earlier that
+we shouldn't use `process.env` directly.
+
+78
+00:06:21,570 --> 00:06:25,950
+So let's fix that and
+instead use the ConfigService.
+
+79
+00:06:25,950 --> 00:06:34,420
+Let's move into the constructor
+real quick and inject ConfigService.
+
+80
+00:06:34,420 --> 00:06:41,640
+With this service injected, we can now
+replace the previously used process.env.API_KEY call, with:
+
+81
+00:06:41,950 --> 00:06:43,930
+`this.configService.
+
+82
+00:06:43,960 --> 00:06:48,460
+get()` passing in the string of "API_KEY".
+
+83
+00:06:48,460 --> 00:06:53,050
+Let's save all of our changes and check the
+terminal to make sure everything is compiling correctly.
+
+84
+00:06:54,310 --> 00:06:59,860
+Ok so our Guard is ready, but it looks
+like the application *couldn't* bootstrap properly, and it is
+
+85
+00:06:59,860 --> 00:07:02,260
+throwing some compilation errors!
+
+86
+00:07:02,260 --> 00:07:04,450
+Well what happened?
+
+87
+00:07:04,450 --> 00:07:10,060
+Well these errors appeared because we're using dependency
+injection *inside of our Guard*, which was
+
+88
+00:07:10,060 --> 00:07:13,960
+instantiated in the main.ts file.
+
+89
+00:07:13,960 --> 00:07:16,430
+So how can we fix this?
+
+90
+00:07:16,430 --> 00:07:18,200
+As we showed in previous lessons.
+
+91
+00:07:18,800 --> 00:07:26,150
+Global guards that *depend* on other classes
+**must** be registered within a @Module context.
+
+92
+00:07:26,150 --> 00:07:29,300
+Let's fix this real quick, and
+add this guard to a module.
+
+93
+00:07:29,300 --> 00:07:34,970
+And actually let's take it up a notch, and create
+a new module for our "common" folder, and we can
+
+94
+00:07:34,970 --> 00:07:37,390
+instantiate our Guard there.
+
+95
+00:07:37,390 --> 00:07:44,110
+Let's fire up another terminal window and let's generate
+a module and call it common with: `nest g
+
+96
+00:07:44,260 --> 00:07:48,090
+mo common`.
+
+97
+00:07:48,090 --> 00:07:52,560
+This will generate a module class where we can
+register any global enhancers we might make in the
+
+98
+00:07:52,560 --> 00:07:56,130
+future including our ApiKeyGuard.
+
+99
+00:07:56,130 --> 00:08:00,690
+Great. So let's open up this new module and
+utilize the custom provider setup we learned in a
+
+100
+00:08:00,690 --> 00:08:02,460
+previous lesson.
+
+101
+00:08:02,460 --> 00:08:09,030
+This is where we pass in an object into our
+provider's array providing a specific class or key and
+
+102
+00:08:09,030 --> 00:08:11,670
+then the value to be used for it.
+
+103
+00:08:11,670 --> 00:08:12,870
+Inside of our @Module() decorator.
+
+104
+00:08:13,320 --> 00:08:20,670
+Let's add a providers:[] Array, and pass in
+an object with `provide: APP_GUARD \}` and `useClass:`
+
+105
+00:08:21,240 --> 00:08:24,790
+with our `ApiKeyGuard`.
+
+106
+00:08:24,790 --> 00:08:30,050
+This setup is very similar to using `app.useGlobalGuards()`
+that we had in our main.ts file.
+
+107
+00:08:30,050 --> 00:08:34,960
+But as we said, that option is only available
+if our guards *do not* use dependency injection.
+
+108
+00:08:35,440 --> 00:08:39,850
+Note that there is a way around that, but it
+isn't a best practice since you'd have to manually pass
+
+109
+00:08:39,850 --> 00:08:42,240
+in dependencies.
+
+110
+00:08:42,240 --> 00:08:47,610
+One last thing here. Let's make sure to import
+the `ConfigModule` in the imports:[] Array here so we
+
+111
+00:08:47,610 --> 00:08:50,880
+can use the ConfigService in our Guard.
+
+112
+00:08:50,880 --> 00:08:56,010
+Now let's open up our main.ts file and remove
+that `useGlobalGuards` line since we don't need it
+
+113
+00:08:56,010 --> 00:08:59,250
+anymore and save all of our changes.
+
+114
+00:08:59,250 --> 00:09:04,240
+Let's switch to our terminal window again to
+make sure everything can bootstrap properly now.
+
+115
+00:09:04,240 --> 00:09:06,720
+Great. Everything's compiling again.
+
+116
+00:09:06,720 --> 00:09:10,800
+Now let's open up insomnia and put
+our new Guard to the test.
+
+117
+00:09:10,800 --> 00:09:16,200
+Let's start by removing the "authorization" header, and
+make a GET /coffees request, which we setup
+
+118
+00:09:16,230 --> 00:09:18,720
+to use our @Public() decorator.
+
+119
+00:09:18,720 --> 00:09:21,810
+If everything works as expected it
+should *not* return a 403 error.
+
+120
+00:09:22,230 --> 00:09:24,600
+Since our guard *should allow access* to it.
+
+121
+00:09:24,600 --> 00:09:27,440
+And it worked, great!
+
+122
+00:09:27,440 --> 00:09:32,210
+Next. Let's try a route that *doesn't* have the
+@Public() decorator, like a GET request to the end
+
+123
+00:09:32,210 --> 00:09:35,940
+point /coffees/1.
+
+124
+00:09:35,940 --> 00:09:41,250
+Our guard should deny us access to this route since
+it is neither public nor are we passing in an
+
+125
+00:09:41,250 --> 00:09:43,140
+authorization header.
+
+126
+00:09:43,140 --> 00:09:48,620
+And there it is, 403 Forbidden
+- our guard works perfectly!
+
+127
+00:09:48,620 --> 00:09:54,230
+So to wrap up we covered a lot of ground in
+this lesson tapping into a lot of concepts we learned in
+
+128
+00:09:54,230 --> 00:09:56,210
+previous lessons.
+
+129
+00:09:56,210 --> 00:10:01,490
+Now we have the additional power to create
+our own decorators, and utilize handler metadata, useful
+
+130
+00:10:01,490 --> 00:10:04,000
+for anything our application might
+need in the future.
+

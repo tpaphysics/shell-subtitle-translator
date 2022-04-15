@@ -1,0 +1,226 @@
+1
+00:00:00,710 --> 00:00:07,190
+Muito do NestJS é construído em torno
+um poderoso recurso da linguagem TypeScript chamado "decoradores".
+
+2
+00:00:07,190 --> 00:00:10,530
+Decoradores são simplesmente funções que aplicam lógica.
+
+3
+00:00:10,530 --> 00:00:16,580
+NestJS fornece um conjunto de decoradores de parâmetros úteis que
+você pode usar junto com a rota HTTP
+
+4
+00:00:16,580 --> 00:00:21,380
+manipuladores, por exemplo @Body(),
+para extrair o request.body.
+
+5
+00:00:21,380 --> 00:00:24,530
+Ou @Param(), para escolher
+um "parâmetro" de solicitação específico.
+
+6
+00:00:25,100 --> 00:00:29,390
+Adicionalmente podemos criar
+nossos próprios decoradores personalizados.
+
+7
+00:00:29,390 --> 00:00:34,520
+Vamos imaginar que por algum motivo queremos
+para recuperar o `request.protocol` de dentro da rota
+
+8
+00:00:34,520 --> 00:00:40,490
+manipulador. Normalmente, precisaríamos injetar o
+objeto Request inteiro com o decorador `@Req()`
+
+9
+00:00:40,640 --> 00:00:43,340
+na definição do método.
+
+10
+00:00:43,340 --> 00:00:48,260
+No entanto, isso torna esse método específico mais difícil de testar
+já que precisaríamos zombar de todo
+
+11
+00:00:48,260 --> 00:00:52,070
+Solicitar objeto toda vez que
+tente testar este método.
+
+12
+00:00:52,070 --> 00:00:55,370
+Para tornar nosso código
+mais legível e mais fácil de testar.
+
+13
+00:00:55,760 --> 00:00:59,150
+Em vez disso, vamos criar um decorador de parâmetro personalizado.
+
+14
+00:00:59,150 --> 00:01:06,580
+Para começar vamos abrir o /common/decorators
+pasta e crie um protocol.decorator.ts dentro
+
+15
+00:01:10,820 --> 00:01:17,060
+. Agora, dentro deste arquivo, vamos fazer
+uso da função utilitária: `CreateParamDecorator` importado
+
+16
+00:01:17,060 --> 00:01:21,220
+de @nestjs/common para construir nosso decorador personalizado.
+
+17
+00:01:21,220 --> 00:01:25,820
+Como estamos tentando encontrar o `request.protocol` para
+nosso decorador, precisaremos recuperar
+
+18
+00:01:25,820 --> 00:01:28,100
+a partir do objeto Request.
+
+19
+00:01:28,100 --> 00:01:33,350
+Podemos recuperar isso do ExecutionContext
+vimos nas lições anteriores, com `switch
+
+20
+00:01:33,500 --> 00:01:37,550
+ToHttp()`, e então
+chamando `getRequest()` depois.
+
+21
+00:01:37,550 --> 00:01:41,870
+Vamos simplesmente retornar `request.protocol`
+e estamos todos prontos.
+
+22
+00:01:41,870 --> 00:01:44,180
+Ótimo, agora para testar nosso decorador.
+
+23
+00:01:44,180 --> 00:01:49,610
+Vamos abrir nosso arquivo CoffeesController e
+use-o temporariamente no método findAll()
+
+24
+00:01:55,910 --> 00:02:01,730
+. Vamos adicionar um único console.log() dentro do método
+para sair deste parâmetro @Protocol() e veja
+
+25
+00:02:01,730 --> 00:02:03,900
+o que nos dá.
+
+26
+00:02:03,900 --> 00:02:10,050
+Vamos apenas salvar nossas alterações, navegar para insônia,
+e execute uma solicitação GET /coffees para ver
+
+27
+00:02:10,050 --> 00:02:15,570
+tudo em ação. Agora vamos voltar
+para o VSCode e acione nosso terminal.
+
+28
+00:02:15,570 --> 00:02:19,590
+Pudemos ver "http", nosso protocolo,
+foi logado no console!
+
+29
+00:02:19,590 --> 00:02:26,120
+Ótimo funciona. Também podemos passar
+"argumentos" para nossos decoradores personalizados, se necessário.
+
+30
+00:02:26,120 --> 00:02:30,950
+Neste caso, nosso decorador @Protocol() é totalmente sem estado
+então não há razão para passar em qualquer
+
+31
+00:02:30,950 --> 00:02:34,310
+parâmetros, pois não há nada para configurar.
+
+32
+00:02:34,310 --> 00:02:39,620
+No entanto, em cenários mais sofisticados onde o
+comportamento do nosso decorador depende de diferentes
+
+33
+00:02:39,620 --> 00:02:43,820
+condições, podemos passar o
+argumento `data` neles.
+
+34
+00:02:43,820 --> 00:02:49,580
+Por exemplo, digamos que queríamos passar
+um valor padrão para o decorador que acabamos de criar.
+
+35
+00:02:49,580 --> 00:02:57,790
+Vamos apenas passar uma string de
+"https", entre os parênteses @Protocol("https").
+
+36
+00:02:57,790 --> 00:03:01,570
+Para acessar este "valor" de
+dentro de nossa fábrica de decoradores param.
+
+37
+00:03:01,570 --> 00:03:07,840
+Podemos usar o argumento `data`, o
+primeiro argumento aqui que anteriormente não tocamos.
+
+38
+00:03:07,840 --> 00:03:10,480
+Para deixar nosso decorador mais auto explicativo.
+
+39
+00:03:10,480 --> 00:03:15,670
+Vamos alterar o nome do argumento para "defaultValue" e
+configure-o para digitar "string", para melhor
+
+40
+00:03:15,670 --> 00:03:21,040
+legibilidade e segurança de tipo.
+
+41
+00:03:21,040 --> 00:03:21,940
+Com isso no lugar.
+
+42
+00:03:22,400 --> 00:03:26,560
+Agora vamos ver se esses valores são realmente
+entrando em nosso decorador, e adicione um único
+
+43
+00:03:26,560 --> 00:03:31,990
+console.log(defaultValue) para sair desta
+valor padrão para o nosso terminal.
+
+44
+00:03:31,990 --> 00:03:38,980
+Novamente. Vamos nos certificar de salvar nossas alterações, navegar
+para insônia, e execute o mesmo GET /coffees
+
+45
+00:03:38,980 --> 00:03:41,410
+solicitação.
+
+46
+00:03:41,410 --> 00:03:44,170
+De volta ao nosso terminal novamente.
+
+47
+00:03:44,170 --> 00:03:48,610
+Podemos ver o defaultValue "https"
+objeto foi registrado no console.
+
+48
+00:03:48,670 --> 00:03:49,060
+Excelente!
+
