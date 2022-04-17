@@ -2,7 +2,7 @@
   <a href="#" target="blank"><img src=".images/linux.png" width="200" alt="Crazy Linux" /></a>
 </p>
 
-  <H3 align="center"> Uso pratico do shell script para tradução simultânea de arquivos de legendas de filmes.
+  <H3 align="center"> Script para tradução de arquivos de legendas de filmes.
     <H3 align="center">
 <img src="https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white" alt="Shell" />
 
@@ -16,9 +16,7 @@
 
 ## Descrição
 
-Ao obter um curso em formato de vídeo me deparei com o com problema de traduzir as legendas.
-
-Poderia copiar e colar o conteúdo dos arquivos e traduzir um por um manualmente no google tradutor... mas ia ser um trabalho penoso! 😵‍💫. Ou baixar algum player com esse recurso de forma nativa mas decidi implementar algumas linhas de código para fazer isso.
+Ao obter um curso em formato de vídeo me deparei com o com problema de traduzir as legendas. Poderia copiar e colar o conteúdo dos arquivos e traduzir um por um manualmente no google tradutor... mas ia ser um trabalho penoso! 😵‍💫. Poderia também baixar algum player que possui este recurso de forma nativa mas decidi implementar algumas linhas de código para fazer isso.
 
 Então, lembrando-me de alguns conhecimentos de shell script, instalei o [translate-shell](https://man.archlinux.org/man/community/translate-shell/trans.1.en).
 
@@ -43,17 +41,17 @@ $ trans -S
 
 ## Funcionamento
 
-Copie e cole todas as legendas para a pasta <strong>en_legends</strong> e execute o script:
+O formato das minhas legendas são em srt, confira o formato das suas legendas. copie e cole o script no diretório das legendas abra o terminal e execute:
 
 ```bash
 $ ./translate.sh
 ```
 
-o script criará o diretório <strong>pt-br_traduction</strong> e começará a criar os arquivos de legendas em português brasileiro.
+O script criará os diretórios <strong>traduction</strong> e <strong>legends</strong> e moverá suas legendas originais para pasta legends e criará arquivos traduzidos para português brasileiro na pasta traduction.
 
 ## Observação
 
-Utilizado este escript abaixo verifiquei que o tempo para tradução dos aquivos era demasiadamente longo!
+Utilizado este escript abaixo, verifiquei que o tempo para tradução dos aquivos era demasiadamente longo!
 
 ```shell
 #/bin/bash
@@ -76,7 +74,7 @@ while read line; do
 done <arq_list.txt
 ```
 
-Então, acrescentei o simbolo <strong>&</strong> ao final da linha 2:
+Então acrescentei o simbolo <strong>&</strong> ao final da linha 2:
 
 ```shell
 1 while read line; do
@@ -84,7 +82,7 @@ Então, acrescentei o simbolo <strong>&</strong> ao final da linha 2:
 3 done <arq_list.txt
 ```
 
-Desta forma todos os arquivos foram traduzidos de forma simultânea:
+Desta forma o tempo de tradução é menor pois todos os arquivos são traduzidos de forma simultânea:
 
 ```shell
 #/bin/bash
@@ -106,13 +104,50 @@ while read line; do
     trans -b $TRANSLATE_LANGUAGE -i ./$LEGENDS_DIR/"$line" >./$TRANSLATE_OUT_DIR/"$line" &
 done <arq_list.txt
 
+```
 
+O comando abaixo, mostra o PID dos processos que contém .<strong>srt</strong> no nome:
+
+```shell
+$ pgrep -f .srt
+
+854650
+854651
+854652
+854653
+854654
+854655
+854656
+854657
+854658
+854659
+854697
+854710
+854715
+854724
+854726
+854730
+854738
+854741
+854743
+854751
+```
+
+O código abaixo, monitora a cada 5 segundos a saida de erro <strong>$?</strong> do comando <strong>pgrep -f .srt</strong>. Quando todos os processos que contém <strong>.srt</strong> no nome acabam, a saída de erro padrao possui valor igual a 1 e o loop é encerrado. Isso indica o final das traduções.
+
+```shell
+status=0
+while [ $status -eq 0 ]; do
+    pgrep -f .srt >/dev/null
+    status=$?
+    sleep 5
+done
 ```
 
 ## **📚 Referências**
 
-- [Blog Terminal Root](https://terminalroot.com.br/2019/10/traduza-rapidamente-textos-via-linha-de-comando.html)
-- [Archlinux documentação translate-shell ](https://man.archlinux.org/man/community/translate-shell/trans.1.en)
+- [Terminal Root](https://terminalroot.com.br/2019/10/traduza-rapidamente-textos-via-linha-de-comando.html)
+- [Archlinux](https://man.archlinux.org/man/community/translate-shell/trans.1.en)
 
 ## **👨‍🚀 Autor**
 
