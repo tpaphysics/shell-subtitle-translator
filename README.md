@@ -16,7 +16,7 @@
 
 ## Descrição
 
-Ao obter um curso em formato de vídeo me deparei com o com problema de traduzir as legendas. Poderia copiar e colar o conteúdo dos arquivos e traduzir um por um manualmente no google tradutor... mas ia ser um trabalho penoso! 😵‍💫. Poderia também baixar algum player que possui este recurso de forma nativa mas decidi implementar algumas linhas de código para fazer isso.
+Ao obter um curso em formato de vídeo me deparei com o com problema de traduzir as legendas. Poderia copiar e colar o conteúdo dos arquivos e traduzir um por um manualmente no google tradutor... mas ia ser um trabalho penoso 😵‍! Poderia também baixar algum player que possui este recurso de forma nativa mas decidi implementar algumas linhas de código para fazer isso.
 
 Então, lembrando-me de alguns conhecimentos de shell script, instalei o [translate-shell](https://man.archlinux.org/man/community/translate-shell/trans.1.en).
 
@@ -106,7 +106,7 @@ done <arq_list.txt
 
 ```
 
-O comando abaixo, mostra o PID dos processos que contém .<strong>srt</strong> no nome:
+Durante as traduções, o comando pgrep pode mostrar o PID dos processos que contém .<strong>srt</strong> no nome:
 
 ```shell
 $ pgrep -f .srt
@@ -120,20 +120,9 @@ $ pgrep -f .srt
 854656
 854657
 854658
-854659
-854697
-854710
-854715
-854724
-854726
-854730
-854738
-854741
-854743
-854751
 ```
 
-O código abaixo, monitora a cada 5 segundos a saida de erro <strong>$?</strong> do comando <strong>pgrep -f .srt</strong>. Quando todos os processos que contém <strong>.srt</strong> no nome acabam, a saída de erro padrao possui valor igual a 1 e o loop é encerrado. Isso indica o final das traduções.
+As linhas de código abaixo, monitoram a cada 5 segundos a saida de erro <strong>$?</strong> do comando <strong>pgrep -f .srt</strong>. Quando todos os processos que contém <strong>.srt</strong> no nome acabam, a saída de erro possui valor igual a 1 e o loop é encerrado o que indica o final das traduções.
 
 ```shell
 status=0
