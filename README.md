@@ -127,6 +127,19 @@ while pgrep -f .srt >/dev/null; do
 done
 ```
 
+Para implementar o loading, precisamos encontrar uma função tal que:
+
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math=f(process=init)=0">
+<br>
+<img src="https://render.githubusercontent.com/render/math?math=f(process=0) = 100">
+
+Resolvendo o sistema de equações, encontramos:
+
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math=f(x)=100*(1-\frac{x}{init})">
+<p>
+
 A função loading recebe como parametro a variável init que deve ser declarada antes do loop. Ela mede o número de processos no inicio da tradução:
 
 ```shell
