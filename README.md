@@ -41,7 +41,7 @@ $ trans -S
 
 ## Funcionamento
 
-O formato das minhas legendas são em srt, confira o formato das suas legendas. copie e cole o script no diretório das legendas abra o terminal e execute:
+O formato das minhas legendas são em srt, confira o formato das suas legendas. Copie e cole o script no diretório das legendas, abra o terminal e execute:
 
 ```bash
 $ ./translate.sh
