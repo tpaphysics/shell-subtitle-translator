@@ -56,21 +56,28 @@ Utilizado este escript abaixo, verifiquei que o tempo para tradução dos aquivo
 ```shell
 #/bin/bash
 
-# Diretórios
-TRANSLATE_OUT_DIR="pt-br_traduction"
-LEGENDS_DIR="en_legends"
+#Pasta com as legendas
+IN_DIR="legends"
+
+#Pasta com as legendas traduzidas
+OUT_DIR="traduction"
 
 # Idioma de tradução
 TRANSLATE_LANGUAGE="en:pt-br"
 
-ls ./$LEGENDS_DIR >arq_list.txt
+if [ ! -d $IN_DIR ]; then
+    mkdir $IN_DIR
+    mv *.srt ./$IN_DIR/
+fi
 
-if [ ! -d $TRANSLATE_OUT_DIR ]; then
-    mkdir $TRANSLATE_OUT_DIR
+ls ./$IN_DIR >arq_list.txt
+
+if [ ! -d $OUT_DIR ]; then
+    mkdir $OUT_DIR
 fi
 
 while read line; do
-    trans -b $TRANSLATE_LANGUAGE -i ./$LEGENDS_DIR/"$line" >./$TRANSLATE_OUT_DIR/"$line"
+    trans -b $TRANSLATE_LANGUAGE -i ./$IN_DIR/"$line" --no-warn >./$OUT_DIR/"$line"
 done <arq_list.txt
 ```
 
@@ -78,33 +85,11 @@ Então acrescentei o simbolo <strong>&</strong> ao final da linha 2:
 
 ```shell
 1 while read line; do
-2    trans -b $TRANSLATE_LANGUAGE -i ./$LEGENDS_DIR/"$line" >./$TRANSLATE_OUT_DIR/"$line" &
+2   trans -b $TRANSLATE_LANGUAGE -i ./$IN_DIR/"$line" --no-warn >./$OUT_DIR/"$line" &
 3 done <arq_list.txt
 ```
 
 Desta forma o tempo de tradução é menor pois todos os arquivos são traduzidos de forma simultânea:
-
-```shell
-#/bin/bash
-
-# Diretórios
-TRANSLATE_OUT_DIR="pt-br_traduction"
-LEGENDS_DIR="en_legends"
-
-# Idioma de tradução
-TRANSLATE_LANGUAGE="en:pt-br"
-
-ls ./$LEGENDS_DIR >arq_list.txt
-
-if [ ! -d $TRANSLATE_OUT_DIR ]; then
-    mkdir $TRANSLATE_OUT_DIR
-fi
-
-while read line; do
-    trans -b $TRANSLATE_LANGUAGE -i ./$LEGENDS_DIR/"$line" >./$TRANSLATE_OUT_DIR/"$line" &
-done <arq_list.txt
-
-```
 
 Durante as traduções, o comando pgrep pode mostrar o PID dos processos que contém .<strong>srt</strong> no nome:
 
@@ -122,16 +107,41 @@ $ pgrep -f .srt
 854658
 ```
 
-As linhas de código abaixo, monitoram a cada 5 segundos a saida de erro <strong>$?</strong> do comando <strong>pgrep -f .srt</strong>. Quando todos os processos que contém <strong>.srt</strong> no nome acabam, a saída de erro possui valor igual a 1 e o loop é encerrado o que indica o final das traduções.
+Para obter o número de processos:
 
 ```shell
-status=0
-while [ $status -eq 0 ]; do
-    pgrep -f .srt >/dev/null
-    status=$?
+$ pgrep -f .srt | wc -l
+22
+```
+
+Quando todos os processos que contém <strong>.srt</strong> no nome acabam, a saída de erro <strong>$?</strong> possui valor igual a 1 e o loop é encerrado o que indica o final das traduções.
+
+```shell
+while pgrep -f .srt >/dev/null; do
+    loading $init
+    spinner &
     sleep 5
+    kill "$!" # kill the spinner
+    printf '\n'
+    clear
 done
 ```
+
+A função loading recebe como parametro a variável init que deve ser declarada antes do loop. Ela mede o número de processos no inicio da tradução:
+
+```shell
+loading() {
+    process=$(pgrep -f .srt | wc -l)
+    result=$(echo "scale=2; 100*(1-$process/$1)" | bc)
+    percent=$(echo "scale=0; $result/1" | bc)
+    echo -n "Translating... $percent%"
+}
+
+init=$( pgrep -f .srt | wc -l )
+loading $init
+```
+
+Desta forma conseguimos monitorar o andamento das traduções.
 
 ## **📚 Referências**
 
