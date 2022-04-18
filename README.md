@@ -47,7 +47,7 @@ O formato das minhas legendas são em srt, confira o formato das suas legendas. 
 $ ./translate.sh
 ```
 
-O script criará os diretórios <strong>traduction</strong> e <strong>legends</strong> e moverá suas legendas originais para pasta legends e criará arquivos traduzidos para português brasileiro na pasta <strong>traduction</strong>.
+O script criará os diretórios <strong>traduction</strong> e <strong>legends</strong> e moverá suas legendas originais para pasta <strong>legends</strong> e criará arquivos traduzidos para português brasileiro na pasta <strong>traduction</strong>.
 
 ## Observação
 
