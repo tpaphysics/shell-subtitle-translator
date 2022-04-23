@@ -154,6 +154,8 @@ init=$( pgrep -f .srt | wc -l )
 loading $init
 ```
 
+<image src=".images/traduction.svg"/>
+
 Desta forma conseguimos monitorar o andamento das traduções.
 
 ## **📚 Referências**
