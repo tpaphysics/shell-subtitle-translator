@@ -51,7 +51,7 @@ O script criará os diretórios <strong>traduction</strong> e <strong>legends</s
 
 ## Observação
 
-Utilizado este escript abaixo, verifiquei que o tempo para tradução dos aquivos era demasiadamente longo!
+Utilizado este escript abaixo, verifiquei que o tempo para tradução dos aquivos era longo.
 
 ```shell
 #/bin/bash
@@ -81,16 +81,13 @@ while read line; do
 done <arq_list.txt
 ```
 
-Então acrescentei o simbolo <strong>&</strong> ao final da linha 2:
+Então acrescentei o operador <strong>&</strong> (Ampersand) ao final da linha 2 e todas as traduções são executadas em background ao mesmo tempo:
 
 ```shell
 1 while read line; do
 2   trans -b $TRANSLATE_LANGUAGE -i ./$IN_DIR/"$line" --no-warn >./$OUT_DIR/"$line" &
 3 done <arq_list.txt
 ```
-
-Desta forma o tempo de tradução é menor pois todos os arquivos são traduzidos de forma simultânea:
-
 Durante as traduções, o comando pgrep pode mostrar o PID dos processos que contém .<strong>srt</strong> no nome:
 
 ```shell
