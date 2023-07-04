@@ -1,6 +1,3 @@
-<p align="center">
-  <a href="#" target="blank"><img src=".images/linux.png" width="200" alt="Crazy Linux" /></a>
-</p>
 
   <H3 align="center"> Script para tradução de arquivos de legendas de filmes.
     <H3 align="center">
